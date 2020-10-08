@@ -106,7 +106,7 @@ include { MASH_SCREEN; MASH_SCREEN_MULTIQC_SUMMARY } from './modules/processes/m
 include { TMAP } from './modules/processes/tmap'
 include { SAMTOOLS_DEPTH; SAMTOOLS_STATS } from './modules/processes/samtools'
 include { TVC } from './modules/processes/tvc'
-include { BCFTOOLS_VCF_FILTER; BCFTOOLS_VCF_NORM } from './modules/processes/bcftools'
+include { BCFTOOLS_VCF_FILTER; BCFTOOLS_VCF_NORM; BCFTOOLS_STATS } from './modules/processes/bcftools'
 include { MOSDEPTH_GENOME } from './modules/processes/mosdepth'
 include { CONSENSUS } from './modules/processes/consensus'
 include { COVERAGE_PLOT } from './modules/processes/plotting'
@@ -160,8 +160,8 @@ workflow {
            | (SAMTOOLS_STATS & MOSDEPTH_GENOME & SAMTOOLS_DEPTH)
   MASH_SCREEN.out.results | combine(ch_bed_file) | FILTER_BED_FILE
   MASH_SCREEN.out.results \
-    | collect \
     | map { [ it[1] ] } \
+    | collect \
     | MASH_SCREEN_MULTIQC_SUMMARY
   BAM_TO_FASTQ.out | FASTQC
 
@@ -171,6 +171,7 @@ workflow {
     | join(SAMTOOLS_DEPTH.out) \
     | map { [it[0], it[2], it[3], it[4]]} \
     | (CONSENSUS & COVERAGE_PLOT)
+  BCFTOOLS_VCF_FILTER.out | BCFTOOLS_STATS
 
   // Stage config files
   ch_multiqc_config = file("$baseDir/assets/multiqc_config.yaml", checkIfExists: true)
@@ -203,6 +204,7 @@ workflow {
     SAMTOOLS_STATS.out.collect().ifEmpty([]),
     MOSDEPTH_GENOME.out.mqc.collect().ifEmpty([]),
     MASH_SCREEN_MULTIQC_SUMMARY.out.collect(),
+    BCFTOOLS_STATS.out.collect().ifEmpty([]),
     SOFTWARE_VERSIONS.out.software_versions_yaml.collect(),
     ch_workflow_summary.collectFile(name: "workflow_summary_mqc.yaml")
   )

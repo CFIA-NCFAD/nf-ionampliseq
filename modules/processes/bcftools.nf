@@ -33,3 +33,21 @@ process BCFTOOLS_VCF_FILTER {
   bcftools filter -e 'INFO/AF<0.5' -Ov $vcf > ${sample}.norm.filt.vcf
   """
 }
+
+process BCFTOOLS_STATS {
+  tag "$sample"
+  publishDir "${params.outdir}/variants/bcftools",
+             pattern: "*.bcftools_stats.txt",
+             mode: 'copy'
+
+  input:
+  tuple val(sample), path(bam), path(vcf), path(ref_fasta)
+
+  output:
+  path("*.bcftools_stats.txt")
+
+  script:
+  """
+  bcftools stats -F $ref_fasta $vcf > ${sample}.bcftools_stats.txt
+  """
+}

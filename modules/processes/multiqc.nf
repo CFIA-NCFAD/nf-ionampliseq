@@ -9,6 +9,7 @@ process MULTIQC {
   path('samtools/*')
   path('mosdepth/*')
   path('mash_screen/*')
+  path('bcftools/*')
   path('software_versions/*')
   path(workflow_summary)
 

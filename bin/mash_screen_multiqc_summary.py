@@ -46,7 +46,7 @@ def main(input_directory,
     dir_path = Path(input_directory)
     print(f'input_directory="{dir_path}"')
     dfs = []
-    for tsv_path in dir_path.glob('*.tsv'):
+    for tsv_path in dir_path.glob('*-mash_screen.tsv'):
         df = pd.read_table(tsv_path, names=mash_screen_columns)
         df = df.sort_values('identity', ascending=False).head(1)
         df['sample'] = tsv_path.stem.replace('-mash_screen', '')
