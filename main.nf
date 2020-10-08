@@ -140,7 +140,7 @@ workflow {
     if (ref_panel == 'CSFV_AmpliSeq') {
       panel = params.panels.get('csf')
       log.info "Using AmpliSeq panel 'csf' given that reference was found to be '$ref_panel' in rundir '$rundir'. Panel='$panel'"
-    } else if (ref_panel ==~ /FMDV_AmpliSeq/) {
+    } else if (ref_panel == 'FMDV_AmpliSeq_WG0022620160728referenceSequences') {
       panel = params.panels.get('fmd')
     } else {
       exit 1, "Not sure what AmpliSeq panel to use given reference '$ref_panel' found in 'ion_params_00.json'"
