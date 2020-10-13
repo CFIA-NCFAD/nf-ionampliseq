@@ -67,3 +67,30 @@ run_modules:
 sp:
     mosdepth/global_dist:
         fn: '*.global.dist.txt'
+
+table_columns_visible:
+    'VARIANTS: Samtools (tmap raw)':
+        flagstat_total: false
+        mapped_passed: false
+        error_rate: false
+        'non-primary_alignments': false
+    'PREPROCESS: FastQC (raw reads)':
+        total_sequences: false
+    'Bcftools Stats':
+        number_of_MNPs: true
+
+table_columns_placement:
+    'PREPROCESS: FastQC (raw reads)':
+        percent_duplicates: 850
+        percent_gc: 860
+        avg_sequence_length: 870
+    'VARIANTS: Samtools (tmap raw)':
+        reads_mapped: 1010
+        raw_total_sequences: 1020
+        reads_mapped_percent: 1030
+    'Bcftools Stats':
+        number_of_records: 1060
+        number_of_SNPs: 1070
+        number_of_MNPs: 1080
+        number_of_indels: 1090
+        tstv: 1100
