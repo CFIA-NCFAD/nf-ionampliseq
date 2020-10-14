@@ -14,14 +14,11 @@ Read mapping, variant calling and consensus sequence generation workflow for Ion
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It comes with docker containers making installation trivial and results highly reproducible.
 
-
-
 ## Workflow Overview
 
 This workflow includes several built-in analysis packages for Ion Torrent AmpliSeq sequence data of [CSFV], [FMDV], [ZIKV] and [EBOV]. Users can also specify their own analysis packages, however, these files must be compatible with the Ion Torrent Software Suite including [tmap] and [tvc]
 
 ### Input
-
 
 - `--sample_sheet`
   - CSV file with 2 columns:
@@ -37,7 +34,6 @@ This workflow includes several built-in analysis packages for Ion Torrent AmpliS
 3. Variant calling with [tvc]
 4. Normalization and filtering of variants using [bcftools]
 5. Majority consensus sequence generation using []
-
 
 [CSFV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi
 [FMDV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=12110&lvl=3&lin=f&keep=1&srchmode=1&unlock
@@ -97,7 +93,6 @@ You can cite the `nf-core` publication as follows:
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
 > ReadCube: [Full Access Link](https://rdcu.be/b1GjZ)
-
 
 [tmap]: https://github.com/iontorrent/TS/
 [tvc]: http://updates.iontorrent.com/tvc_standalone/

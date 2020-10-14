@@ -1,23 +1,20 @@
-## CSFV AmpliSeq data
+# CSFV AmpliSeq data
 
 Description of files:
 
 - `CSFV_AmpliSeq.fasta`
-    - original reference sequences in FASTA format
-    - ambiguous bases have been substituted for `N` characters
-    - **NOTE:** the sequence for JQ861548 has been updated in NCBI with JQ861548.3 which contains far fewer Ns. Edit distance between JQ861548 present in this file and JQ861548.3 is 6143 according to global alignment with [edlib]
+  - original reference sequences in FASTA format
+  - ambiguous bases have been substituted for `N` characters
+  - **NOTE:** the sequence for JQ861548 has been updated in NCBI with JQ861548.3 which contains far fewer Ns. Edit distance between JQ861548 present in this file and JQ861548.3 is 6143 according to global alignment with [edlib]
 - `WG00242.20170223.designed.bed`
-    - contains amplicon locations in references
-    - original file from CSFV AmpliSeq panel used with the [variantCaller] plugin for [Torrent Suite Software](https://github.com/iontorrent/TS)
+  - contains amplicon locations in references
+  - original file from CSFV AmpliSeq panel used with the [variantCaller] plugin for [Torrent Suite Software](https://github.com/iontorrent/TS)
 
-
-### Differences in sequences 
+## Differences in sequences 
 
 Determined differences between original sequences and latest sequences from NCBI using [edlib] global alignment edit distances.
 
-
-
-**Code**
+### Code
 
 ```python
 # Download latest sequence from NCBI using Entrez API
@@ -53,9 +50,9 @@ for rid in recs.keys():
         print()
 ```
 
-**Output**
+### Output
 
-```
+```text
 ================================================================================
 KU556758 | accession=KU556758.1 | {'editDistance': 3, 'alphabetLength': 7, 'locations': [(0, 12295)], 'cigar': '3837=1X1917=1X5833=1X706='}
   3760 GCCAAGGGTAGGATAACAGATGGTGGTTGGCAGAGACAGCCGGAGACCAATTTTGACATCCAACTCGCACTGGCAGTNATA
@@ -465,8 +462,6 @@ JQ861548 | accession=JQ861548.3 | {'editDistance': 6143, 'alphabetLength': 5, 'l
  12160 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-|||||||||
  12160 TATTTATTTATTTATTGAATGAGCAAGGACTGGTACAAACTACCTCACGTTACCACACTACACTCATTTTTTAACAGCACT
 ```
-
-
 
 [edlib]: https://github.com/Martinsos/edlib
 [variantCaller]: https://github.com/iontorrent/TS/tree/master/plugin/variantCaller
