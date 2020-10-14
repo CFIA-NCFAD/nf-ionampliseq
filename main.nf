@@ -192,7 +192,8 @@ workflow {
   // FastQC reads
   BAM_TO_FASTQ.out | FASTQC
   // Variant calling with TVC
-  TMAP.out | join(FILTER_BED_FILE.out) | TVC
+  ch_tvc_input = TMAP.out | join(FILTER_BED_FILE.out)
+  TVC(ch_tvc_input, file(params.tvc_error_motifs_dir))
   // Variant calling normalization and filtering for majority consensus sequence generation
   TVC.out.vcf | BCFTOOLS_VCF_NORM | BCFTOOLS_VCF_FILTER
   // Depth masked consensus sequence generation from variant calling results and samtools depth info

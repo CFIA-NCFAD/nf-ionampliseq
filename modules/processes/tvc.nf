@@ -9,6 +9,7 @@ process TVC {
         path(bam),
         path(ref_fasta),
         path(bed_file)
+  path tvc_error_motifs_dir
 
   output:
   tuple val(sample),
@@ -18,7 +19,6 @@ process TVC {
   path 'tvc-outdir/'
 
   script:
-  tvc_error_motifs_dir = (params.tvc_error_motifs_dir) ? "--error-motifs-dir ${params.tvc_error_motifs_dir}" : ""
   """
   cp $ref_fasta ref.fasta
   samtools faidx ref.fasta
@@ -36,7 +36,7 @@ process TVC {
     --min-mapping-qv ${params.tvc_min_mapping_qv} \\
     --read-snp-limit ${params.tvc_read_snp_limit} \\
     --disable-filters \\
-    $tvc_error_motifs_dir \\
+    --error-motifs-dir $tvc_error_motifs_dir \\
     --output-vcf ${sample}-small_variants.vcf
   samtools index ${sample}-tvc-postprocessed.bam
   """
