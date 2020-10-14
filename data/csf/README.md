@@ -10,7 +10,7 @@ Description of files:
   - contains amplicon locations in references
   - original file from CSFV AmpliSeq panel used with the [variantCaller] plugin for [Torrent Suite Software](https://github.com/iontorrent/TS)
 
-## Differences in sequences 
+## Differences in sequences
 
 Determined differences between original sequences and latest sequences from NCBI using [edlib] global alignment edit distances.
 

@@ -4,7 +4,7 @@ A maximum-likelihood phylogenetic tree was constructed from a multiple sequence 
 
 Best model selected by ModelFinder was GTR+F+R9:
 
-```
+```text
 Akaike Information Criterion:           GTR+F+R10
 Corrected Akaike Information Criterion: GTR+F+R9
 Bayesian Information Criterion:         GTR+F+R9
