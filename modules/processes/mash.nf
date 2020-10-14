@@ -6,8 +6,7 @@ process MASH_SCREEN {
   publishDir "${params.outdir}/mash_screen",
              pattern: "*-top_ref.fasta",
              mode: 'copy'
-  cpus 16
-  
+
   input:
   tuple val(sample), path(reads), path(ref_fasta)
 

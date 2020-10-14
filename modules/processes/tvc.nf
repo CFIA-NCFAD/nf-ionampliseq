@@ -4,9 +4,6 @@ process TVC {
   publishDir "${params.outdir}/tvc/$sample",
              mode: 'copy'
 
-  cpus 16
-  memory 16.GB
-
   input:
   tuple val(sample),
         path(bam),

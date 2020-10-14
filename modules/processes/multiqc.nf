@@ -4,7 +4,6 @@ process MULTIQC {
   input:
   path(multiqc_config)
   path(mqc_custom_config)
-  // TODO nf-core: Add in log files from your new processes for MultiQC to find!
   path('fastqc/*')
   path('samtools/*')
   path('mosdepth/*')
@@ -15,7 +14,7 @@ process MULTIQC {
   path(workflow_summary)
 
   output:
-  path "*multiqc_report.html", emit: multiqc_report // into ch_multiqc_report
+  path "*multiqc_report.html", emit: multiqc_report
   path "*_data"
   path "multiqc_plots"
 
