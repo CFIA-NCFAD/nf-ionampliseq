@@ -117,7 +117,7 @@ include { BCFTOOLS_VCF_FILTER; BCFTOOLS_VCF_NORM; BCFTOOLS_STATS } from './modul
 include { MOSDEPTH_GENOME } from './modules/processes/mosdepth'
 include { CONSENSUS } from './modules/processes/consensus'
 include { COVERAGE_PLOT } from './modules/processes/plotting'
-include { EDLIB_ALIGN } from './modules/processes/edlib'
+include { EDLIB_ALIGN; EDLIB_MULTIQC } from './modules/processes/edlib'
 
 
 workflow {
@@ -205,6 +205,8 @@ workflow {
 
   CONSENSUS.out | map { [ it[0], it[4], it[2] ]} | EDLIB_ALIGN
 
+  EDLIB_ALIGN.out.json | collect | EDLIB_MULTIQC
+
   //===============
   // MultiQC report
   //===============
@@ -240,6 +242,7 @@ workflow {
     MOSDEPTH_GENOME.out.mqc.collect().ifEmpty([]),
     MASH_SCREEN_MULTIQC_SUMMARY.out.collect(),
     BCFTOOLS_STATS.out.collect().ifEmpty([]),
+    EDLIB_MULTIQC.out.collect().ifEmpty([]),
     SOFTWARE_VERSIONS.out.software_versions_yaml.collect(),
     ch_workflow_summary.collectFile(name: "workflow_summary_mqc.yaml")
   )

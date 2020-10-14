@@ -10,7 +10,7 @@ process EDLIB_ALIGN {
 
   output:
   tuple val(sample), path('*.txt'), emit: txt
-  path('*.json'), emit: json
+  path '*.json', emit: json
 
   script:
   """
@@ -32,8 +32,6 @@ process EDLIB_MULTIQC {
 
   script:
   """
-  edlib_multiqc.py \\
-    --output edlib_summary_mqc.txt \\
-    $edlib_json
+  edlib_multiqc.py ./ edlib_summary_mqc.txt
   """
 }
