@@ -2,7 +2,7 @@
 * Utility processes
 */
 
-process SAMPLE_NAME_FROM_BAM {
+process SAMPLE_INFO_FROM_BAM {
   publishDir "${params.outdir}/bam_sample_info",
              pattern: "*.tsv",
              mode: 'copy'
