@@ -29,6 +29,7 @@ dependencies:
     - numpy
     - odfpy
     - pandas
+    - pysam
     - seaborn
     - vcf_consensus_builder
     - xlrd
