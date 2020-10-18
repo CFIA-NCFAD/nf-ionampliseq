@@ -2,6 +2,29 @@
 * Utility processes
 */
 
+process SAMPLE_NAME_FROM_BAM {
+  publishDir "${params.outdir}/bam_sample_info",
+             pattern: "*.tsv",
+             mode: 'copy'
+  input:
+  path(bam)
+
+  output:
+  tuple path(bam),
+        path('sample_name.txt'),
+        path('ampliseq_panel.txt'), emit: sample_info
+  path '*.tsv'
+
+  script:
+  """
+  parse_bam_sample_info.py \\
+    -i $bam \\
+    -o sample_name.txt \\
+    -p ampliseq_panel.txt \\
+    --write-sample-info
+  """
+}
+
 process CHECK_SAMPLE_SHEET {
     tag "$samplesheet"
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'

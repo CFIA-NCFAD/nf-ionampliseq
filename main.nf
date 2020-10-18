@@ -46,6 +46,9 @@ if (workflow.profile == 'slurm' && params.slurm_queue == "") {
 def summary = [:]
 if (workflow.revision) summary['Pipeline Release'] = workflow.revision
 summary['Pipeline Run Name']                = custom_runName ?: workflow.runName
+if (params.input) {
+  summary['Input BAM files']                = params.input
+}
 if (params.rundir) {
   summary['Seq run directory']              = params.rundir
 }
@@ -108,7 +111,7 @@ checkHostname()
 include { OUTPUT_DOCS; SOFTWARE_VERSIONS } from './modules/processes/docs'
 include { FASTQC } from './modules/processes/fastqc'
 include { MULTIQC } from './modules/processes/multiqc'
-include { CHECK_SAMPLE_SHEET; BAM_TO_FASTQ; FILTER_BED_FILE } from './modules/processes/misc'
+include { CHECK_SAMPLE_SHEET; BAM_TO_FASTQ; FILTER_BED_FILE; SAMPLE_INFO_FROM_BAM } from './modules/processes/misc'
 include { MASH_SCREEN; MASH_SCREEN_MULTIQC_SUMMARY } from './modules/processes/mash'
 include { TMAP } from './modules/processes/tmap'
 include { SAMTOOLS_DEPTH; SAMTOOLS_STATS } from './modules/processes/samtools'
@@ -119,18 +122,39 @@ include { CONSENSUS } from './modules/processes/consensus'
 include { COVERAGE_PLOT } from './modules/processes/plotting'
 include { EDLIB_ALIGN; EDLIB_MULTIQC } from './modules/processes/edlib'
 
-
 workflow {
   //================================
   // Input validation and collection
   //================================
-  // If sample sheet table provided
-  if (params.sample_sheet) {
+
+  // if BAM file input specified
+  if (params.input) {
+    Channel.fromPath(params.input, checkIfExists: true) \
+      | ifEmpty { exit 1, "--input specified but no valid input files found!"} \
+      | SAMPLE_INFO_FROM_BAM
+    ch_sample_info = SAMPLE_INFO_FROM_BAM.out.sample_info \
+      | map {
+        sample_name = file(it[1]).text
+        ampliseq_panel = file(it[2]).text
+        panel = params.panels.get(ampliseq_panel)
+        ref_fasta = file(panel.fasta, checkIfExists: true)
+        bed_file = file(panel.bed_file, checkIfExists: true)
+        [ sample_name, it[0], ref_fasta, bed_file ]
+       }
+    // ch_input: [ sample_name, bam_file ]
+    ch_input = ch_sample_info | map { [ it[0], it[1] ] }
+    // ch_ref_fasta: [ sample_name, ref_fasta_file ]
+    ch_ref_fasta = ch_sample_info | map { [ it[0], it[2] ] }
+    // ch_bed_file: [ sample_name, ref_bed_file ]
+    ch_bed_file = ch_sample_info | map { [ it[0], it[3] ] }
+  } else if (params.sample_sheet) {
+    // If sample sheet table provided
     sample_sheet_file = file(params.sample_sheet, checkIfExists: true)
     ch_input = Channel.from(sample_sheet_file) \
       | CHECK_SAMPLE_SHEET \
       | splitCsv(header: ['sample', 'bam'], sep: ',', skip: 1) \
       | map { check_sample_sheet(it) }
+    ch_samples = ch_input | map { it[0] }
     if (params.panel && params.panels && !params.panels.containsKey(params.panel)) {
       exit 1, "The specified AmpliSeq panel '$params.panel' is not a valid panel. You must specify one of the following: ${params.panels.keySet().join(', ')}"
     }
@@ -139,14 +163,14 @@ workflow {
     }
     if (params.panel && params.panels && params.panels.containsKey(params.panel)) {
       panel = params.panels.get(params.panel)
-      ch_ref_fasta = Channel.from(file(panel.fasta, checkIfExists: true))
-      ch_bed_file = Channel.from(file(panel.bed_file, checkIfExists: true))
+      ch_ref_fasta = ch_samples | combine(Channel.from(file(panel.fasta, checkIfExists: true)))
+      ch_bed_file = ch_samples | combine(Channel.from(file(panel.bed_file, checkIfExists: true)))
       summary['References multi FASTA'] = panel.fasta
       summary['AmpliSeq BED file'] = panel.bed_file
     }
     if (params.ref_fasta && params.bed_file) {
-      ch_ref_fasta = Channel.from(file(params.ref_fasta, checkIfExists: true))
-      ch_bed_file = Channel.from(file(params.bed_file, checkIfExists: true))
+      ch_ref_fasta = ch_samples | combine(Channel.from(file(params.ref_fasta, checkIfExists: true)))
+      ch_bed_file = ch_samples | combine(Channel.from(file(params.bed_file, checkIfExists: true)))
     }
     summary['AmpliSeq Panel'] = params.panel
   } else if (params.rundir) {
@@ -164,9 +188,10 @@ workflow {
     summary['AmpliSeq Panel'] = ref_panel
     summary['References multi FASTA'] = panel.fasta
     summary['AmpliSeq BED file'] = panel.bed_file
-    ch_ref_fasta = Channel.from(file(panel.fasta, checkIfExists: true))
-    ch_bed_file = Channel.from(file(panel.bed_file, checkIfExists: true))
     ch_input = Channel.from(samples)
+    ch_samples = ch_input | map { it[0] }
+    ch_ref_fasta = ch_samples | combine(Channel.from(file(panel.fasta, checkIfExists: true)))
+    ch_bed_file = ch_samples | combine(Channel.from(file(panel.bed_file, checkIfExists: true)))
   } else {
     // if neither a sample sheet table or sequencing run directory specified
     exit 1, "Sample sheet tab-delimited file not specified! Please specify path to sample_sheet with '--sample_sheet /path/to/sample_sheet.tsv'"
@@ -176,14 +201,14 @@ workflow {
   //===============
   // Mash screen of reads against reference genomes to select top reference
   ch_input | BAM_TO_FASTQ \
-           | combine(ch_ref_fasta) \
+           | join(ch_ref_fasta) \
            | MASH_SCREEN
   // Map reads against top reference and compute read mapping stats 
   ch_input | join(MASH_SCREEN.out.top_ref) \
            | TMAP \
            | (SAMTOOLS_STATS & MOSDEPTH_GENOME & SAMTOOLS_DEPTH)
   // Filter the AmpliSeq panel BED file for entries belonging to top reference
-  MASH_SCREEN.out.results | combine(ch_bed_file) | FILTER_BED_FILE
+  MASH_SCREEN.out.results | join(ch_bed_file) | FILTER_BED_FILE
   // Collect Mash screen results into table for MultiQC report
   MASH_SCREEN.out.results \
     | map { [ it[1] ] } \
