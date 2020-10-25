@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This pipeline performs read mapping and variant calling with Thermo Fisher developed open-source tools, [TMAP] and [TVC] to produce more accurate read mapping and variant calling results from Ion Torrent AmpliSeq sequence data. The pipeline also generates a consensus sequence and comprehensive QC stats and results report using MultiQC. 
+This pipeline performs read mapping and variant calling with Thermo Fisher developed open-source tools, [TMAP] and [TVC] to produce more accurate read mapping and variant calling results from Ion Torrent AmpliSeq sequence data. The pipeline also generates a consensus sequence and comprehensive QC stats and results report using MultiQC.
 
 This workflow currently includes several built-in analysis packages for Ion Torrent AmpliSeq sequence data of [CSFV] and [FMDV]. Users can also specify their own AmpliSeq panels, however, these files (reference sequences FASTA and detailed BED file) must be compatible with the Ion Torrent Software Suite including [tmap] and [tvc].
 
@@ -84,7 +84,6 @@ Other Options:
   --tracedir        Pipeline run info output directory (default:
                     ./results/pipeline_info)
 ```
-
 
 ### Updating the pipeline
 

@@ -26,7 +26,7 @@ and processes data using the following steps:
 
 ## BAM Sample Info
 
-Sample and sequencing run information is extracted from the BAM file headers and with certain pipeline run modes (`--input`), it is used to determine which AmpliSeq panel to use and what the sample names are for each BAM file. 
+Sample and sequencing run information is extracted from the BAM file headers and with certain pipeline run modes (`--input`), it is used to determine which AmpliSeq panel to use and what the sample names are for each BAM file.
 
 **Output files:**
 
@@ -115,7 +115,7 @@ The Thermo Fisher Scientific read mapper ([TMAP][]) is used for read mapping of 
 
 ## TVC
 
-[TVC][] performs variant calling from the [tmap][] read mapping output. It will also trim AmpliSeq primers given the coordinates of the amplicons specified in each AmpliSeq panel's detailed BED file. TVC will also account for common Ion Torrent sequencing specific error motifs. 
+[TVC][] performs variant calling from the [tmap][] read mapping output. It will also trim AmpliSeq primers given the coordinates of the amplicons specified in each AmpliSeq panel's detailed BED file. TVC will also account for common Ion Torrent sequencing specific error motifs.
 
 **Output files:**
 
@@ -147,7 +147,7 @@ Variants detected by [TVC] are normalized and filtered by [Bcftools][] to find t
 
 ## Consensus Sequence
 
-A majority consensus sequence is constructed from a coverage depth masked reference sequence (low/no coverage reference sequence positions are replaced with `N`) and variants normalized and filtered by [Bcftools][] using [vcf_consensus_builder][] 
+A majority consensus sequence is constructed from a coverage depth masked reference sequence (low/no coverage reference sequence positions are replaced with `N`) and variants normalized and filtered by [Bcftools][] using [vcf_consensus_builder][].
 
 **Output files:**
 
