@@ -2,11 +2,11 @@ process TMAP {
   tag "$sample"
   publishDir "${params.outdir}/tmap",
              pattern: "*-tmap.bam*",
-             mode: 'copy'
+             mode: params.publish_dir_mode
   publishDir "${params.outdir}/tmap",
              pattern: "*.fasta",
              saveAs: { "$sample-ref.fasta" },
-             mode: 'copy'
+             mode: params.publish_dir_mode
 
   input:
   tuple val(sample), path(bam), path(ref_fasta)

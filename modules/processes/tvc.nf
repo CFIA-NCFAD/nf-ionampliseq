@@ -2,7 +2,7 @@ process TVC {
   tag "$sample"
 
   publishDir "${params.outdir}/tvc/$sample",
-             mode: 'copy'
+             mode: params.publish_dir_mode
 
   input:
   tuple val(sample),

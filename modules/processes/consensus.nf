@@ -2,7 +2,7 @@ process CONSENSUS {
   tag "$sample"
   publishDir "${params.outdir}/consensus", 
     pattern: "*.consensus.fasta",
-    mode: 'copy'
+    mode: params.publish_dir_mode
 
   input:
     tuple val(sample),

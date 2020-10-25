@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/ionampliseq/master/nextflow_schema.json",
-    "title": "nf-core/ionampliseq pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/peterk87/nf-ionampliseq/master/nextflow_schema.json",
+    "title": "peterk87/nf-ionampliseq pipeline parameters",
     "description": "Ion Torrent Ampliseq workflow for analysis of FMDV, CSFV, Zika, Ebola amplicon sequence data",
     "type": "object",
     "definitions": {
@@ -10,21 +10,46 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": [
-                "input"
-            ],
             "properties": {
                 "input": {
                     "type": "string",
                     "fa_icon": "fas fa-dna",
-                    "description": "Input FastQ files.",
-                    "help_text": "Use this to specify the location of your input FastQ files. For example:\n\n```bash\n--input 'path/to/data/sample_*_{1,2}.fastq'\n```\n\nPlease note the following requirements:\n\n1. The path must be enclosed in quotes\n2. The path must have at least one `*` wildcard character\n3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.\n\nIf left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`"
+                    "description": "Input BAM files from Ion Torrent Torrent Suite tmap.",
+                    "help_text": "Use this to specify the location of your input BAM files. For example:\n\n```bash\n--input 'path/to/data/*.bam'\n```\n\nPlease note the following requirements:\n\n1. The path must be enclosed in quotes\n2. The path must have at least one `*` wildcard character\n3. The BAM files must be produced by the Ion Torrent Torrent Suite software, specifically `tmap`.",
+                    "default": "null"
                 },
-                "single_end": {
-                    "type": "boolean",
-                    "description": "Specifies that the input is single-end reads.",
-                    "fa_icon": "fas fa-align-center",
-                    "help_text": "By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when you launch the pipeline. A normal glob pattern, enclosed in quotation marks, can then be used for `--input`. For example:\n\n```bash\n--single_end --input '*.fastq'\n```\n\nIt is not possible to run a mixture of single-end and paired-end files in one run."
+                "rundir": {
+                    "type": "string",
+                    "default": "null",
+                    "description": "Ion Torrent sequencing run directory",
+                    "help_text": "Use this to specify the exported Ion Torrent sequencing run you wish to analyze. For example:\n\n```bash\n--rundir path/to/iontorrent/run\n```\n\nPlease note the following requirements:\n\n1. The directory specified must contain BAM files matching the pattern `IonCode_*_rawlib.bam` and a `ion_params_00.json` file.\n2. The BAM files must be produced by the Ion Torrent Torrent Suite software, specifically `tmap`.",
+                    "fa_icon": "fas fa-folder"
+                },
+                "sample_sheet": {
+                    "type": "string",
+                    "default": "null",
+                    "fa_icon": "fas fa-table",
+                    "description": "Sample sheet table containing two fields: sample name, BAM file path",
+                    "help_text": "Use this option to specify the Ion Torrent sequencing samples that you wish to analyze. Please note the following requirements:\n\n1. The sample sheet table file may be one of the following formats: tab-delimited (TSV), CSV, ODS or XLSX\n2. The sample sheet table must contain a header row and 2 fields: the first field must contain the sample name; and the second field must contain the BAM file path or URL.\n3. The BAM files must be produced by the Ion Torrent Torrent Suite software, specifically `tmap`."
+                },
+                "panel": {
+                    "enum": [null, "fmd", "csf"],
+                    "default": null,
+                    "fa_icon": "fas fa-viruses",
+                    "description": "AmpliSeq panel (\"fmd\" or \"csf\")",
+                    "help_text": "Specify a built-in AmpliSeq panel (reference genome sequences FASTA and detailed BED file of AmpliSeq amplicon coordinates) to perform analysis with."
+                },
+                "ref_fasta": {
+                    "type": "string",
+                    "default": "null",
+                    "fa_icon": "fas fa-dna",
+                    "description": "Reference genome sequences FASTA for AmpliSeq panel."
+                },
+                "bed_file": {
+                    "type": "string",
+                    "default": "null",
+                    "fa_icon": "fas fa-table",
+                    "description": "Detailed BED file containing AmpliSeq amplicon coordinates and information."
                 },
                 "outdir": {
                     "type": "string",
@@ -41,39 +66,91 @@
                 }
             }
         },
-        "reference_genome_options": {
-            "title": "Reference genome options",
+        "tvc_parameters": {
+            "title": "TVC parameters",
             "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Options for the reference genome indices used to align reads.",
+            "description": "Thermo Fisher variant caller (TVC) parameters",
+            "default": "",
             "properties": {
-                "genome": {
+                "tvc_error_motifs_dir": {
                     "type": "string",
-                    "description": "Name of iGenomes reference.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`.\n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
+                    "default": "$baseDir/data/tvc-sse",
+                    "fa_icon": "fas fa-folder"
                 },
-                "fasta": {
-                    "type": "string",
-                    "fa_icon": "fas fa-font",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "If you have no genome reference available, the pipeline can build one using a FASTA file. This requires additional time and resources, so it's better to use a pre-build index if possible."
+                "tvc_downsample_to_coverage": {
+                    "type": "integer",
+                    "default": 8000,
+                    "fa_icon": "fas fa-compress-alt"
                 },
-                "igenomes_base": {
-                    "type": "string",
-                    "description": "Directory / URL base for iGenomes references.",
-                    "default": "s3://ngi-igenomes/igenomes/",
-                    "fa_icon": "fas fa-cloud-download-alt",
-                    "hidden": true
+                "tvc_read_snp_limit": {
+                    "type": "integer",
+                    "default": 20,
+                    "fa_icon": "fas fa-hand-paper"
                 },
-                "igenomes_ignore": {
-                    "type": "boolean",
-                    "description": "Do not load the iGenomes reference config.",
-                    "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
+                "tvc_min_mapping_qv": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-greater-than-equal"
+                },
+                "tvc_read_limit": {
+                    "type": "integer",
+                    "default": 4000000,
+                    "fa_icon": "far fa-hand-lizard"
                 }
-            }
+            },
+            "fa_icon": "fas fa-stream"
+        },
+        "mash_screen_parameters": {
+            "title": "Mash Screen Parameters",
+            "type": "object",
+            "description": "Mash screen parameters for determining top reference genome from MinHash kmer containment of reference hashes in sample read sequences.",
+            "default": "",
+            "properties": {
+                "mash_k": {
+                    "type": "integer",
+                    "default": 19,
+                    "description": "Reference genome sequence Mash sketch k-mer size",
+                    "fa_icon": "fas fa-ruler"
+                },
+                "mash_s": {
+                    "type": "integer",
+                    "default": 10000,
+                    "description": "Number of Mash sketches to create for each reference genome sequence.",
+                    "fa_icon": "fas fa-arrows-alt"
+                }
+            },
+            "fa_icon": "fas fa-search-plus"
+        },
+        "consensus_sequence_options": {
+            "title": "Consensus sequence options",
+            "type": "object",
+            "description": "Majority consensus sequence generation options",
+            "default": "",
+            "properties": {
+                "no_cov_char": {
+                    "type": "string",
+                    "default": "N",
+                    "description": "Mask no coverage positions in reference with this character.",
+                    "fa_icon": "fas fa-eye-slash"
+                },
+                "low_cov_char": {
+                    "type": "string",
+                    "default": "N",
+                    "description": "Mask low coverage positions in reference with this character.",
+                    "fa_icon": "fas fa-low-vision"
+                },
+                "no_coverage": {
+                    "type": "integer",
+                    "description": "No coverage depth threshold. Positions at or below this coverage will be masked with the `no_cov_char` character.",
+                    "fa_icon": "fas fa-battery-empty"
+                },
+                "low_coverage": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Low coverage depth threshold. Positions at or below this coverage will be masked with the `low_cov_char` character.",
+                    "fa_icon": "fas fa-battery-quarter"
+                }
+            },
+            "fa_icon": "fas fa-dna"
         },
         "generic_options": {
             "title": "Generic options",
@@ -244,7 +321,13 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/reference_genome_options"
+            "$ref": "#/definitions/mash_screen_parameters"
+        },
+        {
+            "$ref": "#/definitions/tvc_parameters"
+        },
+        {
+            "$ref": "#/definitions/consensus_sequence_options"
         },
         {
             "$ref": "#/definitions/generic_options"

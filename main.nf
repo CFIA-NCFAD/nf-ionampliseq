@@ -155,6 +155,7 @@ workflow {
       | splitCsv(header: ['sample', 'bam'], sep: ',', skip: 1) \
       | map { check_sample_sheet(it) }
     ch_samples = ch_input | map { it[0] }
+    ch_input | map { it[1] } | SAMPLE_INFO_FROM_BAM
     if (params.panel && params.panels && !params.panels.containsKey(params.panel)) {
       exit 1, "The specified AmpliSeq panel '$params.panel' is not a valid panel. You must specify one of the following: ${params.panels.keySet().join(', ')}"
     }
@@ -190,6 +191,7 @@ workflow {
     summary['AmpliSeq BED file'] = panel.bed_file
     ch_input = Channel.from(samples)
     ch_samples = ch_input | map { it[0] }
+    ch_input | map { it[1] } | SAMPLE_INFO_FROM_BAM
     ch_ref_fasta = ch_samples | combine(Channel.from(file(panel.fasta, checkIfExists: true)))
     ch_bed_file = ch_samples | combine(Channel.from(file(panel.bed_file, checkIfExists: true)))
   } else {

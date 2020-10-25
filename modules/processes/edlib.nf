@@ -3,7 +3,7 @@ process EDLIB_ALIGN {
 
   publishDir "${params.outdir}/consensus/edlib", 
              pattern: "*.txt", 
-             mode: 'copy'
+             mode: params.publish_dir_mode
 
   input:
   tuple val(sample), path(consensus_fasta), path(ref_fasta)

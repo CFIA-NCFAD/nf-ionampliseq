@@ -70,7 +70,7 @@ def main(sample,
 
 def write_nice_alignment(nice_aln, conseq, fh, recref, refseq, sample):
     write_header(fh, f'Full alignment - {sample} (Query) VS {recref.id} (Target)')
-    fh.write('"M" for match where "." denotes a mismatch and "|" denotes a match')
+    fh.write('"M" for match where "." denotes a mismatch and "|" denotes a match\n')
     aln_len = len(nice_aln['query_aligned'])
     line_width = 60
     for i in range(0, aln_len, line_width):

@@ -1,5 +1,5 @@
 <!--
-# nf-core/ionampliseq bug report
+# peterk87/nf-ionampliseq bug report
 
 Hi there!
 

@@ -1,5 +1,5 @@
 <!--
-# nf-core/ionampliseq feature request
+# peterk87/nf-ionampliseq feature request
 
 Hi there!
 

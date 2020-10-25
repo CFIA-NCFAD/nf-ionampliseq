@@ -2,10 +2,10 @@ process MASH_SCREEN {
   tag "$sample"
   publishDir "${params.outdir}/mash_screen",
              pattern: "*-mash_screen.tsv",
-             mode: 'copy'
+             mode: params.publish_dir_mode
   publishDir "${params.outdir}/mash_screen",
              pattern: "*-top_ref.fasta",
-             mode: 'copy'
+             mode: params.publish_dir_mode
 
   input:
   tuple val(sample), path(reads), path(ref_fasta)
