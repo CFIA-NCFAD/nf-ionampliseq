@@ -3,20 +3,16 @@ LABEL authors="Peter Kruczkiewicz" \
       version="1.0.0" \
       description="Docker image containing all software requirements for the peterk87/ionampliseq pipeline"
 
+# Copy tmap, tvc and other related binaries from peterk87/tvc-tmap-torrent-suite:v1.0.0
+COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0 /usr/local/bin/tvc /usr/local/bin
+COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0 /usr/local/bin/tvcutils /usr/local/bin
+COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0 /usr/local/bin/tvcassembly /usr/local/bin
+COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0 /usr/local/bin/tmap /usr/local/bin
 
 # Install OpenBLAS for tvc
 RUN apt update && \
     apt install -y libopenblas-dev libopenblas-base && \
     apt clean
-
-COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0
- /usr/local/bin/tvc /usr/local/bin
-COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0
- /usr/local/bin/tvcutils /usr/local/bin
-COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0
- /usr/local/bin/tvcassembly /usr/local/bin
-COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0
- /usr/local/bin/tmap /usr/local/bin
 
 # Install the conda environment
 COPY environment.yml /
