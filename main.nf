@@ -45,8 +45,17 @@ if (workflow.profile == 'slurm' && params.slurm_queue == "") {
 // Header log info
 def summary = [:]
 if (workflow.revision) summary['Pipeline Release'] = workflow.revision
-summary['Run Name']         = custom_runName ?: workflow.runName
-// TODO nf-core: Report custom parameters here
+summary['Pipeline Run Name']                = custom_runName ?: workflow.runName
+if (params.input) {
+  summary['Input BAM files']                = params.input
+}
+if (params.rundir) {
+  summary['Seq run directory']              = params.rundir
+}
+if (params.sample_sheet) {
+  summary['Sample sheet']                   = params.sample_sheet
+}
+summary['AmpliSeq Panel']                   = params.panel
 summary['References multi FASTA']           = params.ref_fasta
 summary['AmpliSeq BED file']                = params.bed_file
 summary['Mash kmer length']                 = params.mash_k
@@ -60,7 +69,6 @@ summary['Consensus low coverage']           = params.low_coverage
 summary['Consensus low coverage character'] = params.low_cov_char
 summary['Consensus no coverage']            = params.no_coverage
 summary['Consensus no coverage character']  = params.no_cov_char
-summary['Sample sheet']                     = params.sample_sheet
 summary['Max Resources']                    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if (workflow.containerEngine) {
     summary['Container'] = "$workflow.containerEngine - $workflow.container"
@@ -97,11 +105,13 @@ log.info "-\033[2m--------------------------------------------------\033[0m-"
 // Check the hostnames against configured profiles
 checkHostname()
 
-// Include processes
+//=================
+// Process includes
+//=================
 include { OUTPUT_DOCS; SOFTWARE_VERSIONS } from './modules/processes/docs'
 include { FASTQC } from './modules/processes/fastqc'
 include { MULTIQC } from './modules/processes/multiqc'
-include { CHECK_SAMPLE_SHEET; BAM_TO_FASTQ; FILTER_BED_FILE } from './modules/processes/misc'
+include { CHECK_SAMPLE_SHEET; BAM_TO_FASTQ; FILTER_BED_FILE; SAMPLE_INFO_FROM_BAM } from './modules/processes/misc'
 include { MASH_SCREEN; MASH_SCREEN_MULTIQC_SUMMARY } from './modules/processes/mash'
 include { TMAP } from './modules/processes/tmap'
 include { SAMTOOLS_DEPTH; SAMTOOLS_STATS } from './modules/processes/samtools'
@@ -110,15 +120,42 @@ include { BCFTOOLS_VCF_FILTER; BCFTOOLS_VCF_NORM; BCFTOOLS_STATS } from './modul
 include { MOSDEPTH_GENOME } from './modules/processes/mosdepth'
 include { CONSENSUS } from './modules/processes/consensus'
 include { COVERAGE_PLOT } from './modules/processes/plotting'
-
+include { EDLIB_ALIGN; EDLIB_MULTIQC } from './modules/processes/edlib'
 
 workflow {
-  if (params.sample_sheet) {
+  //================================
+  // Input validation and collection
+  //================================
+
+  // if BAM file input specified
+  if (params.input) {
+    Channel.fromPath(params.input, checkIfExists: true) \
+      | ifEmpty { exit 1, "--input specified but no valid input files found!"} \
+      | SAMPLE_INFO_FROM_BAM
+    ch_sample_info = SAMPLE_INFO_FROM_BAM.out.sample_info \
+      | map {
+        sample_name = file(it[1]).text
+        ampliseq_panel = file(it[2]).text
+        panel = params.panels.get(ampliseq_panel)
+        ref_fasta = file(panel.fasta, checkIfExists: true)
+        bed_file = file(panel.bed_file, checkIfExists: true)
+        [ sample_name, it[0], ref_fasta, bed_file ]
+       }
+    // ch_input: [ sample_name, bam_file ]
+    ch_input = ch_sample_info | map { [ it[0], it[1] ] }
+    // ch_ref_fasta: [ sample_name, ref_fasta_file ]
+    ch_ref_fasta = ch_sample_info | map { [ it[0], it[2] ] }
+    // ch_bed_file: [ sample_name, ref_bed_file ]
+    ch_bed_file = ch_sample_info | map { [ it[0], it[3] ] }
+  } else if (params.sample_sheet) {
+    // If sample sheet table provided
     sample_sheet_file = file(params.sample_sheet, checkIfExists: true)
     ch_input = Channel.from(sample_sheet_file) \
       | CHECK_SAMPLE_SHEET \
       | splitCsv(header: ['sample', 'bam'], sep: ',', skip: 1) \
       | map { check_sample_sheet(it) }
+    ch_samples = ch_input | map { it[0] }
+    ch_input | map { it[1] } | SAMPLE_INFO_FROM_BAM
     if (params.panel && params.panels && !params.panels.containsKey(params.panel)) {
       exit 1, "The specified AmpliSeq panel '$params.panel' is not a valid panel. You must specify one of the following: ${params.panels.keySet().join(', ')}"
     }
@@ -127,14 +164,18 @@ workflow {
     }
     if (params.panel && params.panels && params.panels.containsKey(params.panel)) {
       panel = params.panels.get(params.panel)
-      ch_ref_fasta = Channel.from(file(panel.fasta, checkIfExists: true))
-      ch_bed_file = Channel.from(file(panel.bed_file, checkIfExists: true))
+      ch_ref_fasta = ch_samples | combine(Channel.from(file(panel.fasta, checkIfExists: true)))
+      ch_bed_file = ch_samples | combine(Channel.from(file(panel.bed_file, checkIfExists: true)))
+      summary['References multi FASTA'] = panel.fasta
+      summary['AmpliSeq BED file'] = panel.bed_file
     }
     if (params.ref_fasta && params.bed_file) {
-      ch_ref_fasta = Channel.from(file(params.ref_fasta, checkIfExists: true))
-      ch_bed_file = Channel.from(file(params.bed_file, checkIfExists: true))
+      ch_ref_fasta = ch_samples | combine(Channel.from(file(params.ref_fasta, checkIfExists: true)))
+      ch_bed_file = ch_samples | combine(Channel.from(file(params.bed_file, checkIfExists: true)))
     }
+    summary['AmpliSeq Panel'] = params.panel
   } else if (params.rundir) {
+    // if sequencing run directory provided
     rundir = file(params.rundir, checkIfExists: true)
     (samples, ref_panel) = check_rundir(rundir)
     if (ref_panel == 'CSFV_AmpliSeq') {
@@ -145,34 +186,58 @@ workflow {
     } else {
       exit 1, "Not sure what AmpliSeq panel to use given reference '$ref_panel' found in 'ion_params_00.json'"
     }
-    ch_ref_fasta = Channel.from(file(panel.fasta, checkIfExists: true))
-    ch_bed_file = Channel.from(file(panel.bed_file, checkIfExists: true))
+    summary['AmpliSeq Panel'] = ref_panel
+    summary['References multi FASTA'] = panel.fasta
+    summary['AmpliSeq BED file'] = panel.bed_file
     ch_input = Channel.from(samples)
-  } else { 
+    ch_samples = ch_input | map { it[0] }
+    ch_input | map { it[1] } | SAMPLE_INFO_FROM_BAM
+    ch_ref_fasta = ch_samples | combine(Channel.from(file(panel.fasta, checkIfExists: true)))
+    ch_bed_file = ch_samples | combine(Channel.from(file(panel.bed_file, checkIfExists: true)))
+  } else {
+    // if neither a sample sheet table or sequencing run directory specified
     exit 1, "Sample sheet tab-delimited file not specified! Please specify path to sample_sheet with '--sample_sheet /path/to/sample_sheet.tsv'"
   }
-
+  //===============
+  // Workflow Start
+  //===============
+  // Mash screen of reads against reference genomes to select top reference
   ch_input | BAM_TO_FASTQ \
-           | combine(ch_ref_fasta) \
+           | join(ch_ref_fasta) \
            | MASH_SCREEN
+  // Map reads against top reference and compute read mapping stats 
   ch_input | join(MASH_SCREEN.out.top_ref) \
            | TMAP \
            | (SAMTOOLS_STATS & MOSDEPTH_GENOME & SAMTOOLS_DEPTH)
-  MASH_SCREEN.out.results | combine(ch_bed_file) | FILTER_BED_FILE
+  // Filter the AmpliSeq panel BED file for entries belonging to top reference
+  MASH_SCREEN.out.results | join(ch_bed_file) | FILTER_BED_FILE
+  // Collect Mash screen results into table for MultiQC report
   MASH_SCREEN.out.results \
     | map { [ it[1] ] } \
     | collect \
     | MASH_SCREEN_MULTIQC_SUMMARY
+  // FastQC reads
   BAM_TO_FASTQ.out | FASTQC
-
-  TMAP.out | join(FILTER_BED_FILE.out) | TVC
+  // Variant calling with TVC
+  ch_tvc_input = TMAP.out | join(FILTER_BED_FILE.out)
+  TVC(ch_tvc_input, file(params.tvc_error_motifs_dir))
+  // Variant calling normalization and filtering for majority consensus sequence generation
   TVC.out.vcf | BCFTOOLS_VCF_NORM | BCFTOOLS_VCF_FILTER
+  // Depth masked consensus sequence generation from variant calling results and samtools depth info
   BCFTOOLS_VCF_FILTER.out \
     | join(SAMTOOLS_DEPTH.out) \
     | map { [it[0], it[2], it[3], it[4]]} \
     | (CONSENSUS & COVERAGE_PLOT)
+  // Bcftools variant calling stats for MultiQC report
   BCFTOOLS_VCF_FILTER.out | BCFTOOLS_STATS
 
+  CONSENSUS.out | map { [ it[0], it[4], it[2] ]} | EDLIB_ALIGN
+
+  EDLIB_ALIGN.out.json | collect | EDLIB_MULTIQC
+
+  //===============
+  // MultiQC report
+  //===============
   // Stage config files
   ch_multiqc_config = file("$baseDir/assets/multiqc_config.yaml", checkIfExists: true)
   ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
@@ -205,6 +270,7 @@ workflow {
     MOSDEPTH_GENOME.out.mqc.collect().ifEmpty([]),
     MASH_SCREEN_MULTIQC_SUMMARY.out.collect(),
     BCFTOOLS_STATS.out.collect().ifEmpty([]),
+    EDLIB_MULTIQC.out.collect().ifEmpty([]),
     SOFTWARE_VERSIONS.out.software_versions_yaml.collect(),
     ch_workflow_summary.collectFile(name: "workflow_summary_mqc.yaml")
   )

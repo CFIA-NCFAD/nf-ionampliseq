@@ -1,14 +1,14 @@
 <!--
-# nf-core/ionampliseq pull request
+# peterk87/nf-ionampliseq pull request
 
-Many thanks for contributing to nf-core/ionampliseq!
+Many thanks for contributing to peterk87/nf-ionampliseq!
 
 Please fill in the appropriate checklist below (delete whatever is not relevant).
 These are the most common things requested on pull requests (PRs).
 
 Remember that PRs should be made against the dev branch, unless you're preparing a pipeline release.
 
-Learn more about contributing: [CONTRIBUTING.md](https://github.com/nf-core/ionampliseq/tree/master/.github/CONTRIBUTING.md)
+Learn more about contributing: [CONTRIBUTING.md](https://github.com/peterk87/nf-ionampliseq/tree/master/.github/CONTRIBUTING.md)
 -->
 
 ## PR checklist
@@ -17,4 +17,4 @@ Learn more about contributing: [CONTRIBUTING.md](https://github.com/nf-core/iona
 - [ ] `CHANGELOG.md` is updated
 - [ ] If you've fixed a bug or added code that should be tested, add tests!
 - [ ] Documentation in `docs` is updated
-- [ ] If necessary, also make a PR on the [nf-core/ionampliseq branch on the nf-core/test-datasets repo](https://github.com/nf-core/test-datasets/pull/new/nf-core/ionampliseq)
+- [ ] If necessary, also make a PR on [the peterk87/nf-test-datasets repo](https://github.com/peterk87/nf-test-datasets/pull/new)

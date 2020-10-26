@@ -11,7 +11,7 @@ table_front_matter = """
 # plot_type: 'table'
 # section_name: 'Mash Screen Top Matches'
 # section_href: 'https://www.ncbi.nlm.nih.gov/pubmed/31690338'
-# description: 'Top matching reference genome for each sample based on Mash screen analysis'
+# description: 'The top matching reference genome for each sample was determined by Mash screen analysis where raw sample read sequences were screened against a Mash sketch (MinHash hash) database of reference genome sequences.'
 # pconfig:
 #     namespace: 'Mash Screen Results'
 # headers:
@@ -52,6 +52,7 @@ def main(input_directory,
         df['sample'] = tsv_path.stem.replace('-mash_screen', '')
         dfs += [df]
     df_top_results = pd.concat(dfs)
+    df_top_results.sort_values('sample', inplace=True)
     df_top_results.set_index('sample', inplace=True)
     with open(mqc_summary_output, 'w') as fout:
         fout.write(table_front_matter)

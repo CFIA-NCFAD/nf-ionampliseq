@@ -32,12 +32,17 @@ def helpMessage() {
   The typical command for running the pipeline is as follows:
   
   \$ nextflow run ${workflow.manifest.name} \\
-      ${c_red}--sample_sheet "${params.sample_sheet}"${c_reset} \\
+      ${c_red}--input '/path/to/iontorrent/*.bam'${c_reset} \\
       ${c_green}--outdir ${params.outdir}${c_reset} \\
       -profile docker # Recommended to run workflow with either Docker or Singularity enabled
 
-  ${c_bul}Mandatory Options:${c_reset}
-    ${c_red}--sample_sheet${c_reset}   Sample sheet CSV file (default: ${c_red}"${params.sample_sheet}"${c_reset})
+  ${c_bul}Input Options:${c_reset}
+    ${c_red}--input${c_reset}           Path to BAM files (e.g. 'ion-torrent/*.bam'). Sample names and AmpliSeq panel will be inferred from the BAM file headers. [Recommended run mode]
+    --rundir          Path to Ion Torrent sequencing run containing 'IonCode_*_rawlib.bam' and 'ion_params_00.json' output files.
+    --sample_sheet    Sample sheet CSV, TSV, ODS or XLSX file.
+    --panel           AmpliSeq panel to run. Choice of 'fmd' or 'csf'. Only needs to be specified with '--sample_sheet'.
+    --ref_fasta       Custom AmpliSeq panel reference sequences FASTA.
+    --bed_file        Custom AmpliSeq detailed BED file accompanying '--ref_fasta'.
 
   Mash Screen Options:
     --mash_k          Mash sketch kmer size (default: ${params.mash_k})
@@ -51,7 +56,8 @@ def helpMessage() {
     --tvc_read_snp_limit          TVC: do not use reads with number of SNPs about this (default: $params.tvc_read_snp_limit)
 
   ${c_bul}Cluster Options:${c_reset}
-    --slurm_queue     Name of SLURM queue to run workflow on; use with ${c_dim}-profile slurm${c_reset}
+    --slurm_queue       Name of SLURM queue to run workflow on. Must be specified with ${c_dim}-profile slurm${c_reset}.
+    --slurm_queue_size  Maximum number of Slurm jobs to queue (default: ${params.slurm_queue_size})
 
   ${c_bul}Other Options:${c_reset}
     ${c_green}--outdir${c_reset}          The output directory where the results will be saved
