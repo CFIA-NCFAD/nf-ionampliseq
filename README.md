@@ -121,14 +121,20 @@ You can cite the `nf-core` publication as follows:
 
 <!-- External links and references -->
 
-[CSFV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi
-[FMDV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=12110&lvl=3&lin=f&keep=1&srchmode=1&unlock
-[ZIKV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=64320&lvl=3&lin=f&keep=1&srchmode=1&unlock
-[EBOV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=186536&lvl=3&lin=f&keep=1&srchmode=1&unlock
-[tmap]: https://github.com/iontorrent/TS/
-[tvc]: http://updates.iontorrent.com/tvc_standalone/
-[variantCaller]: https://github.com/iontorrent/TS/tree/master/plugin/variantCaller
-[Torrent Suite]: https://github.com/iontorrent/TS
-[Mash]: https://doi.org/10.1186/s13059-019-1841-x
 [bcftools]: https://samtools.github.io/bcftools/bcftools.html
+[Bcftools]: https://samtools.github.io/bcftools/bcftools.html
+[CSFV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi
+[EBOV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=186536&lvl=3&lin=f&keep=1&srchmode=1&unlock
+[Edlib]: https://github.com/Martinsos/edlib
+[FMDV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=12110&lvl=3&lin=f&keep=1&srchmode=1&unlock
+[Mash]: https://doi.org/10.1186/s13059-019-1841-x
+[Mosdepth]: https://github.com/brentp/mosdepth
+[Samtools]: https://www.htslib.org/
+[tmap]: https://github.com/iontorrent/TS/
+[TMAP]: https://github.com/iontorrent/TS/
+[Torrent Suite]: https://github.com/iontorrent/TS
+[tvc]: http://updates.iontorrent.com/tvc_standalone/
+[TVC]: http://updates.iontorrent.com/tvc_standalone/
+[variantCaller]: https://github.com/iontorrent/TS/tree/master/plugin/variantCaller
 [vcf_consensus_builder]: https://github.com/peterk87/vcf_consensus_builder
+[ZIKV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=64320&lvl=3&lin=f&keep=1&srchmode=1&unlock
