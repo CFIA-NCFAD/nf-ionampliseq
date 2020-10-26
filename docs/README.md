@@ -1,6 +1,6 @@
-# nf-core/ionampliseq: Documentation
+# peterk87/nf-ionampliseq: Documentation
 
-The nf-core/ionampliseq documentation is split into the following pages:
+The peterk87/nf-ionampliseq documentation is split into the following pages:
 
 <!-- TODO nf-core: If you write more documentation pages, add them to the docs index page here -->
 
@@ -9,4 +9,4 @@ The nf-core/ionampliseq documentation is split into the following pages:
 * [Output](output.md)
   * An overview of the different results produced by the pipeline and how to interpret them.
 
-You can find a lot more documentation about installing, configuring and running nf-core pipelines on the website: [https://nf-co.re](https://nf-co.re)
+This pipeline tries to follow the best practices and recommendations of [nf-core](https://nf-co.re) community. Therefore, the documentation about installing, configuring and running nf-core pipelines may be useful: [https://nf-co.re](https://nf-co.re)

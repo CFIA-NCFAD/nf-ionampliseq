@@ -2,7 +2,7 @@ process COVERAGE_PLOT {
   tag "$sample"
   publishDir "${params.outdir}/plots", 
     pattern: '*.pdf',
-    mode: 'copy'
+    mode: params.publish_dir_mode
 
   input:
   tuple val(sample),

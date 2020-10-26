@@ -1,4 +1,4 @@
-name: nf-core CI
+name: CI
 # This workflow runs the pipeline with the minimal test dataset to check that it completes without any syntax errors
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         # Nextflow versions: check pipeline minimum and current latest
-        nxf_ver: ['19.10.0', '']
+        nxf_ver: ['20.07.0', '']
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v2
@@ -34,13 +34,13 @@ jobs:
 
       - name: Build new docker image
         if: env.GIT_DIFF
-        run: docker build --no-cache . -t nfcore/ionampliseq:dev
+        run: docker build --no-cache . -t peterk87/nf-ionampliseq:dev
 
       - name: Pull docker image
         if: ${{ !env.GIT_DIFF }}
         run: |
-          docker pull nfcore/ionampliseq:dev
-          docker tag nfcore/ionampliseq:dev nfcore/ionampliseq:dev
+          docker pull peterk87/nf-ionampliseq:dev
+          docker tag peterk87/nf-ionampliseq:dev peterk87/nf-ionampliseq:dev
 
       - name: Install Nextflow
         run: |

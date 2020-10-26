@@ -2,7 +2,7 @@ process BCFTOOLS_VCF_NORM {
   tag "$sample"
   publishDir "${params.outdir}/variants/vcf",
              pattern: "*.norm.vcf",
-             mode: 'copy'
+             mode: params.publish_dir_mode
 
   input:
   tuple val(sample), path(bam), path(vcf), path(ref_fasta)
@@ -20,7 +20,7 @@ process BCFTOOLS_VCF_FILTER {
   tag "$sample"
   publishDir "${params.outdir}/variants/vcf",
              pattern: "*.filt.vcf",
-             mode: 'copy'
+             mode: params.publish_dir_mode
 
   input:
   tuple val(sample), path(bam), path(vcf), path(ref_fasta)
@@ -38,7 +38,7 @@ process BCFTOOLS_STATS {
   tag "$sample"
   publishDir "${params.outdir}/variants/bcftools",
              pattern: "*.bcftools_stats.txt",
-             mode: 'copy'
+             mode: params.publish_dir_mode
 
   input:
   tuple val(sample), path(bam), path(vcf), path(ref_fasta)

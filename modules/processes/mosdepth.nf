@@ -2,7 +2,7 @@ process MOSDEPTH_GENOME {
   tag "$sample"
   label 'process_medium'
   publishDir "${params.outdir}/mosdepth", 
-             mode: 'copy',
+             mode: params.publish_dir_mode,
              saveAs: { filename ->
                if (filename.endsWith(".pdf")) "plots/$filename"
                else if (filename.endsWith(".tsv")) "plots/$filename"

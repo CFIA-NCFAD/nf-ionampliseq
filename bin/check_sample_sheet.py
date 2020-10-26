@@ -33,11 +33,14 @@ def main(input_sample_sheet,
     df.columns = ['sample', 'bam_filepath']
     bam_filepaths = []
     for fp in df.bam_filepath:
-        path = Path(fp)
-        assert path.suffix.lower() == '.bam', \
-            f'BAM file path extension is "{path.suffix.lower()}" not ".bam"! ' \
-            f'Please check that you have specified the correct file.'
-        bam_filepaths.append(str(path.resolve().absolute()))
+        if fp.startswith('http'):
+            bam_filepaths.append(fp)
+        else:
+            path = Path(fp)
+            assert path.suffix.lower() == '.bam', \
+                f'BAM file path extension is "{path.suffix.lower()}" not ".bam"! ' \
+                f'Please check that you have specified the correct file.'
+            bam_filepaths.append(str(path.resolve().absolute()))
     df.bam_filepath = bam_filepaths
     df.to_csv(output_sample_sheet, index=False)
     print(f'Wrote reformatted sample sheet CSV to "{output_sample_sheet}"')

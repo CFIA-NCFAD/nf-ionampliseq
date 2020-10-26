@@ -1,7 +1,7 @@
 process SAMTOOLS_STATS {
   tag "$sample"
   publishDir "${params.outdir}/samtools/$sample",
-             mode: 'copy'
+             mode: params.publish_dir_mode
   
   input:
   tuple val(sample), path(bam), path(ref_fasta)
@@ -21,7 +21,7 @@ process SAMTOOLS_DEPTH {
   tag "$sample"
   publishDir "${params.outdir}/samtools/depth",
              pattern: "*-depths.tsv",
-             mode: 'copy'
+             mode: params.publish_dir_mode
 
   input:
   tuple val(sample), path(bam), path(ref_fasta)
