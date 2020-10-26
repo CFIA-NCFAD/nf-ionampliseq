@@ -34,13 +34,13 @@ jobs:
 
       - name: Build new docker image
         if: env.GIT_DIFF
-        run: docker build --no-cache . -t peterk87/nf-ionampliseq:dev
+        run: docker build --no-cache . -t peterk87/nf-ionampliseq:1.0.0
 
       - name: Pull docker image
         if: ${{ !env.GIT_DIFF }}
         run: |
           docker pull peterk87/nf-ionampliseq:dev
-          docker tag peterk87/nf-ionampliseq:dev peterk87/nf-ionampliseq:dev
+          docker tag peterk87/nf-ionampliseq:dev peterk87/nf-ionampliseq:1.0.0
 
       - name: Install Nextflow
         run: |
