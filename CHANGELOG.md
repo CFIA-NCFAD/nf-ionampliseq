@@ -11,7 +11,7 @@ WIP: First release of peterk87/nf-ionampliseq workflow.
 
 - Edlib pairwise global alignment between consensus and reference sequences. Edlib alignment stats included in table in MultiQC report.
 - Updated MultiQC report to by default include more useful information.
-- Ion Torrent test dataset at https://github.com/peterk87/nf-test-datasets/ for use with `-profile test`
+- Ion Torrent test dataset at [github.com/peterk87/nf-test-datasets](https://github.com/peterk87/nf-test-datasets/) for use with `-profile test`
 - Output documentation
 
 ### `Fixed`
