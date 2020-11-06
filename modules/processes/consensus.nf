@@ -31,3 +31,16 @@ process CONSENSUS {
     --sample-name $sample
   """
 }
+
+process CONSENSUS_MULTIQC {
+  input:
+  path(fastas)
+
+  output:
+  path('consensus_mqc.html')
+
+  script:
+  """
+  consensus_fasta_multiqc.py $fastas consensus_mqc.html
+  """
+}

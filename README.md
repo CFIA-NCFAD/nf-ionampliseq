@@ -86,7 +86,7 @@ If you wish to use custom names and a specific AmpliSeq panel it is recommended 
 10. [Consensus Sequence](docs/output.md#consensus-sequence) - Majority consensus sequence with `N` masking of low/no coverage positions.
 11. [Edlib Pairwise Alignment](docs/output.md#edlib-pairwise-alignment) - Pairwise global alignment and edit distance between reference and consensus sequences.
 12. [Coverage Plots](#coverage-plots) - Coverage plots with/without low/no coverage and/or variants highlighted with linear and log10 scaling of y-axis depth values.
-13. [MultiQC](docs/output.md#multiqc) - Aggregate report describing results from the whole pipeline
+13. [MultiQC](docs/output.md#multiqc) - Aggregate report describing results from the whole pipeline. Consensus sequences are embedded in the MultiQC HTML report and can be downloaded from it.
 14. [Pipeline information](docs/output.md#pipeline-information) - Report metrics generated during the workflow execution
 
 ### Output
