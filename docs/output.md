@@ -193,6 +193,8 @@ For more information about how to use MultiQC reports, see [https://multiqc.info
   * `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
   * `multiqc_plots/`: directory containing static images from the report in various formats.
 
+> **NB:** All consensus sequence FASTA files will be embedded within the MultiQC HTML report and can be downloaded from it.
+
 ## Pipeline information
 
 [Nextflow](https://www.nextflow.io/docs/latest/tracing.html) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
