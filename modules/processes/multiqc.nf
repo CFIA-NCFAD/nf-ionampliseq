@@ -10,6 +10,7 @@ process MULTIQC {
   path('mash_screen/*')
   path('bcftools/*')
   path('edlib/*')
+  path('consensus/*')
   path('software_versions/*')
   path(workflow_summary)
 
