@@ -1,7 +1,33 @@
-FROM nfcore/base:1.10.2
+# Build stage for samtools
+FROM ubuntu:plucky-20250714 AS samtools-build
+ARG SAMTOOLS_VERSION=1.22.1
+ARG MAKE_JOBS=4
+
+# Install build dependencies (cached as long as this line and base image don't change)
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt update && \
+    apt install -y \
+        build-essential zlib1g-dev libncurses5-dev \
+        libbz2-dev liblzma-dev libcurl4-openssl-dev wget && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Only this part will rebuild if SAMTOOLS_VERSION changes
+WORKDIR /tmp
+RUN wget https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VERSION}/samtools-${SAMTOOLS_VERSION}.tar.bz2 && \
+    tar -xjf samtools-${SAMTOOLS_VERSION}.tar.bz2 && \
+    cd samtools-${SAMTOOLS_VERSION} && \
+    make -j${MAKE_JOBS} && \
+    make install && \
+    cd .. && \
+    rm -rf samtools-${SAMTOOLS_VERSION}*
+
+
+FROM ubuntu:plucky-20250714
 LABEL authors="Peter Kruczkiewicz" \
-      version="1.0.0" \
-      description="Docker image containing all software requirements for the peterk87/ionampliseq pipeline"
+      version="2.0.0" \
+      description="Docker image for TMAP and TVC the CFIA-NCFAD/nf-ionampliseq pipeline" \
+      org.opencontainers.image.source="https://github.com/CFIA-NCFAD/nf-ionampliseq"
 
 # Copy tmap, tvc and other related binaries from peterk87/tvc-tmap-torrent-suite:v1.0.0
 COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0 /usr/local/bin/tvc /usr/local/bin
@@ -9,21 +35,15 @@ COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0 /usr/local/bin/tvcutils /usr/
 COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0 /usr/local/bin/tvcassembly /usr/local/bin
 COPY --from=peterk87/tvc-tmap-torrent-suite:v1.0.0 /usr/local/bin/tmap /usr/local/bin
 
-# Install OpenBLAS for tvc
-RUN apt update && \
-    apt install -y libopenblas-dev libopenblas-base && \
-    apt clean
+COPY --from=samtools-build /usr/local/bin/samtools /usr/local/bin/samtools
 
-# Install the conda environment
-COPY environment.yml /
-RUN conda env create --quiet -f /environment.yml && conda clean -a
+# Install runtime dependencies for samtools and OpenBLAS for tvc
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt update && \
+    apt install -y \
+        libcurl4t64 \
+        libncurses6 \
+        libopenblas-dev && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Add conda installation dir to PATH (instead of doing 'conda activate')
-ENV PATH /opt/conda/envs/nf-ionampliseq-1.0.0/bin:$PATH
-
-# Dump the details of the installed packages to a file for posterity
-RUN conda env export --name nf-ionampliseq-1.0.0 > nf-core-ionampliseq-1.0.0.yml
-
-# Instruct R processes to use these empty files instead of clashing with a local version
-RUN touch .Rprofile
-RUN touch .Renviron

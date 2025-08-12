@@ -11,10 +11,10 @@ jobs:
   Markdown:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '10'
+          node-version: '20'
       - name: Install markdownlint
         run: npm install -g markdownlint-cli
       - name: Run Markdownlint
@@ -22,10 +22,10 @@ jobs:
   YAML:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '10'
+          node-version: '20'
       - name: Install yaml-lint
         run: npm install -g yaml-lint
       - name: Run yaml-lint

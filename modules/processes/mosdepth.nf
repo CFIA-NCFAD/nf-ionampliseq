@@ -1,27 +1,33 @@
 process MOSDEPTH_GENOME {
   tag "$sample"
-  label 'process_medium'
-  publishDir "${params.outdir}/mosdepth", 
-             mode: params.publish_dir_mode,
-             saveAs: { filename ->
-               if (filename.endsWith(".pdf")) "plots/$filename"
-               else if (filename.endsWith(".tsv")) "plots/$filename"
-               else filename
-             }
+  label 'process_low'
+
+  conda 'bioconda::mosdepth=0.3.8'
+  if (workflow.containerEngine == 'singularity' && !params.singularity_pull_docker_container) {
+    container 'https://depot.galaxyproject.org/singularity/mosdepth:0.3.8--hd299d5a_0'
+  } else {
+    container 'quay.io/biocontainers/mosdepth:0.3.8--hd299d5a_0'
+  }
 
   input:
-  tuple val(sample), path(bam), path(ref_fasta)
+  tuple val(sample), path(bam_bai), path(ref_fasta)
 
   output:
-  path "*.global.dist.txt", emit: mqc
-  path "*.{txt,gz,csi,tsv}"
+  tuple val(sample), path("*.per-base.bed.gz"), emit: bedgz
+  path("*.global.dist.txt"), emit: mqc
+  path("*.{txt,gz,csi,tsv}"), emit: results
+  path("versions.yml"), emit: versions
 
   script:
   """
   mosdepth \\
-      --by 200 \\
       --fast-mode \\
       $sample \\
-      ${bam[0]}
+      ${bam_bai[0]}
+
+  cat <<-END_VERSIONS > versions.yml
+  "${task.process}":
+     mosdepth: \$(mosdepth --version 2>&1 | sed 's/^.*mosdepth //; s/ .*\$//')
+  END_VERSIONS
   """
 }

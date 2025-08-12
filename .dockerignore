@@ -1,0 +1,38 @@
+# Git metadata
+.git
+.gitignore
+
+# Documentation (not needed for build)
+README.md
+CHANGELOG.md
+docs/
+*.md
+
+# CI/CD files
+.github/
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+
+# should not copy any workflow files
+lib/
+data/
+modules/
+assets/
+conf/
+
+# should not copy any test files
+.venv
+tests/
+test/
