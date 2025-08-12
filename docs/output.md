@@ -20,7 +20,7 @@ and processes data using the following steps:
 * [Bcftools](#bcftools) - Variant filtering for majority consensus sequence generation and variant statistics for MultiQC report.
 * [Consensus Sequence](#consensus-sequence) - Majority consensus sequence with `N` masking of low/no coverage positions.
 * [Edlib Pairwise Alignment](#edlib-pairwise-alignment) - Pairwise global alignment and edit distance between reference and consensus sequences.
-* [Coverage Plots](#coverage-plots) - Coverage plots with/without low/no coverage and/or variants highlighted with linear and log10 scaling of y-axis depth values.
+* [BLAST Analysis](#blast-analysis) - BLAST database search against consensus sequences for taxonomic identification and sequence similarity analysis
 * [MultiQC](#multiqc) - Aggregate report describing results from the whole pipeline
 * [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -78,7 +78,6 @@ The Thermo Fisher Scientific read mapper ([TMAP][]) is used for read mapping of 
 
 * `tmap/`
   * `*-ref.fasta`: Top reference genome sequence FASTA.
-  * `*-ref.fasta.fai`: Top reference genome sequence FASTA `samtools faidx` output.
   * `*-tmap.bam`: BAM file with read alignment of sample reads against top reference.
   * `*-tmap.bam.bai`: BAM file index (`samtools index` output).
 
@@ -91,11 +90,10 @@ The Thermo Fisher Scientific read mapper ([TMAP][]) is used for read mapping of 
 **Output files:**
 
 * `samtools/`
-  * `*.flagstat`: The number of alignments for each FLAG type.
-  * `*.idxstats`: Alignment summary statistics.
-  * `*.stats`: Comprehensive read alignment statistics.
-* `samtools/depth/`
-  * `*-depths.tsv`: Tab-delimited table of read mapping coverage depth at each position in the reference containing 3 columns: reference genome ID, position and coverage depth.
+  * `${sample}/`
+    * `*.flagstat`: The number of alignments for each FLAG type.
+    * `*.idxstats`: Alignment summary statistics.
+    * `*.stats`: Comprehensive read alignment statistics.
 
 > **NB:** Stats and metrics computed by Samtools are used to generate multiple fields in the MultiQC general statistics table and to generate multiple plots under the section "VARIANTS: Samtools (tmap raw)"
 
@@ -124,13 +122,13 @@ The Thermo Fisher Scientific read mapper ([TMAP][]) is used for read mapping of 
     * `tvc-outdir`: TVC output directory
       * `*-small_variants.vcf`: SNPs, MNPs and small indels detected by TVC in TMAP read alignment.
       * `*-small_variants_filtered.vcf`: Small variants that were filtered out (TVC help unclear what this file is supposed to contain).
-      * `depth.txt`: Read alignment depth at reference sequence positions as determined by TVC.
       * `tvc_metrics.json`: JSON file with basic transition/transversion (Ts/Tv) stats.
       * `indel_assembly.vcf`: *De novo* assembly of large indels detected by TVC with SPAdes. This VCF file should typically contain no variants.
       * `black_listed.vcf`: Variants detected that are "black listed" (i.e. variants that one wishes to ignore). This file should be empty in most cases.
     * `*-tvc-postprocessed.bam`: Post-processed TVC output BAM file for debugging purposes.
-    * `*-tvc-postprocessed.bam`: Post-processed TVC output BAM index file.
-    * `*-mash_screen-top_ref.fasta`: Top reference genome sequence FASTA selected by Mash screen.
+    * `*-tvc-postprocessed.bam.bai`: Post-processed TVC output BAM index file.
+    * `fasta/`
+      * `*-ref.fasta`: Top reference genome sequence FASTA selected by Mash screen.
 
 ## Bcftools
 
@@ -144,6 +142,17 @@ Variants detected by [TVC] are normalized and filtered by [Bcftools][] to determ
   * `${sample}/`
     * `${sample}.bcftools_filt.vcf`: Bcftools normalized, supplemented with additional allele info (Bcftools fill-tags plugin) and filtered VCF. This is the VCF that is used for consensus sequence generation with Bcftools. Multiallelic sites are split into individual records for easier filtering and consensus sequence generation.
     * `${sample}-ref.fasta`: Reference sequence used for variant calling.
+
+## BLAST Analysis
+
+[BLAST](https://blast.ncbi.nlm.nih.gov/) is used to search consensus sequences against user-specified databases for virus strain identification and sequence similarity analysis. This step is optional and requires the `--blast_db` parameter to be specified (e.g. `nextflow run CFIA-NCFAD/nf-ionampliseq ... --blast_db /path/to/blast_db/core_nt`).
+
+**Output files:**
+
+* `blast/`
+  * `*.blastn.tsv`: BLASTN output in tabular format showing query coverage, identity, and alignment details.
+
+> **NB:** Summarized BLAST analysis results are integrated into the MultiQC report, providing comprehensive coverage statistics and virus strain identification information.
 
 ## Consensus Sequence
 
@@ -163,20 +172,7 @@ A majority consensus sequence is constructed with [Bcftools][] `consensus` from 
 * `consensus/`
   * `edlib/`
     * `*.edlib.txt`: Statistics and human-readable Edlib pairwise global alignment between reference and consensus sequences. This file may be useful for troubleshooting.
-
-## Coverage Plots
-
-Coverage plots (reference position vs coverage depth) are generated for each sample from the read alignment depths at each position (from `samtools depth -a` output) and filtered variants detected by TVC. Several plots are created for each sample with and without low/no coverage and/or variants highlighted with linear and log10 scaling of y-axis depth values. Coverage plots figures are generated using a simple Python script that uses the [Matplotlib][] and [seaborn][] plotting libraries.
-
-**Output files:**
-
-* `plots/`
-  * `coverage_plot-*.pdf`: coverage plot with low/no coverage regions highlighted in red for no coverage and yellow for low coverage (<= 3X). Linear scaling of y-axis depth.
-  * `coverage_plot-*-with_variants.pdf`: coverage plot with low/no coverage regions highlighted in red for no coverage and yellow for low coverage (<= 3X) and TVC variants highlighted. Linear scaling of y-axis depth.
-  * `coverage_plot-*-no_low_cov_highlighting.pdf`: coverage plot no highlighting of no/low coverage regions.
-  * `coverage_plot-*-log_scale.pdf`: coverage plot with log10 scaling of y-axis depth.
-
-> **NB:** If you're interested in the coverage plot with no annotations, look for the `${sample}-no_low_cov_highlighting.pdf` or `${sample}-no_low_cov_highlighting-log_scale.pdf` if you want log10 scaling of the depth values in the y-axis.
+    * `*.json`: Edlib JSON output.
 
 ## MultiQC
 
@@ -189,9 +185,9 @@ For more information about how to use MultiQC reports, see [https://multiqc.info
 **Output files:**
 
 * `multiqc/`  
-  * `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  * `multiqc_report.html`: a standalone MultiQC HTML file that can be viewed in your web browser.
   * `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  * `multiqc_plots/`: directory containing static images from the report in various formats.
+  * `multiqc_plots/`: directory containing static images from the report in various formats (PNG, PDF, SVG).
 
 > **NB:** All consensus sequence FASTA files will be embedded within the MultiQC HTML report and can be downloaded from it.
 
@@ -206,7 +202,10 @@ For more information about how to use MultiQC reports, see [https://multiqc.info
   * Reports generated by the pipeline: `pipeline_report.html`, `pipeline_report.txt` and `software_versions.csv`.
   * Documentation for interpretation of results in HTML format: `results_description.html`.
 
+<!-- External links and references -->
+
 [Mosdepth]: https://github.com/brentp/mosdepth
+[BLAST]: https://blast.ncbi.nlm.nih.gov/
 [Samtools]: https://www.htslib.org/
 [tmap]: https://github.com/iontorrent/TS/
 [TMAP]: https://github.com/iontorrent/TS/

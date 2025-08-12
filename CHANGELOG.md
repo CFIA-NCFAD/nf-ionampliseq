@@ -20,12 +20,18 @@ This release modernizes nf-ionampliseq to DSL-2 standards with enhanced BLAST an
 - [config] variant calling options: `minor_allele_fraction`, `major_allele_fraction`, `low_coverage`.
 - [config] enhanced container profiles for multiple container engines.
 - [config] proper resource management with `check_max` function for memory, CPU, and time limits.
-- [config] timestamped execution reports and timeline files.
-- [config] comprehensive error handling and retry strategies.
-- [config] enhanced SLURM cluster configuration support.
+- [config] timestamped execution reports and timeline files in `nextflow.config`.
 
 ### Changes
+- [docs] Comprehensive documentation overhaul with detailed parameter descriptions and external tool references
+- [cleanup] Removed legacy plotting module and environment.yml file for simplified architecture. Use wgscovplot instead for better and interactive plotting of coverage stats and variants.
+- [cleanup] Simplified TMAP process configuration using dynamic arguments parameter.
+- [update] Repository and container registry references updated to CFIA-NCFAD organization
 - [feat] Complete workflow modernization to DSL2 standards with proper process separation.
+- [feat] Added new Docker build workflow in `.github/workflows/docker.yml` for improved container publishing and CI separation.
+- [feat] Added support for building and using custom Docker images with updated samtools and TMAP/TVC binaries.
+- [feat] Enhanced process version tracking: all major processes now emit `versions.yml` with tool versions for reproducibility.
+- [feat] Improved error handling and retry strategies for all processes.
 - [update] MultiQC process updated to support new BLAST coverage MultiQC table.
 - [update] Bump version of workflow and dependencies for 2.0.0 release.
 - [update] Repository renamed from `peterk87/nf-ionampliseq` to `CFIA-NCFAD/nf-ionampliseq`.
@@ -34,6 +40,7 @@ This release modernizes nf-ionampliseq to DSL-2 standards with enhanced BLAST an
 - [update] Process resource labeling standardized (`process_low`, `process_medium`, `process_high`).
 - [update] Input/output patterns standardized across all processes with proper emit declarations.
 - [update] TMAP and TVC processes enhanced with better parameter handling and version tracking.
+- [update] TMAP and TVC processes now use new Docker image `ghcr.io/cfia-ncfad/nf-ionampliseq:2.0.0` with updated samtools and runtime dependencies.
 - [update] MASH screen workflow restructured with separate sketching and screening processes.
 - [update] FastQC process enhanced with memory optimization and version tracking.
 - [update] Samtools processes standardized with consistent version tracking and output handling.
@@ -41,6 +48,10 @@ This release modernizes nf-ionampliseq to DSL-2 standards with enhanced BLAST an
 - [update] Edlib processes enhanced with container support and version tracking.
 - [update] Sample sheet processing improved with better error handling and validation.
 - [docs] Documentation and help text for BLAST coverage analysis improved.
+- [docs] Updated documentation to reflect new container build and usage instructions.
+- [ci] Updated GitHub Actions CI tests.
+- [ci] Moved Docker container build to separate workflow for improved CI/CD.
+- [ci] CI now tests with multiple Nextflow versions 22.10.1 and latest stable (25.04.6 currently).
 
 ### Fixed
 - [fix] Container compatibility issues across different container engines.
@@ -50,10 +61,10 @@ This release modernizes nf-ionampliseq to DSL-2 standards with enhanced BLAST an
 - [fix] MultiQC report generation and custom content integration.
 
 ### Dependencies
-- [dep] Updated to Nextflow `!>=22.10.1`.
-- [dep] Enhanced container support with multiple engine options.
-- [dep] Standardized conda environment specifications across all processes.
-- [dep] Added version tracking for all bioinformatics tools.
+- [deps] Updated to Nextflow `!>=22.10.1`.
+- [deps] Enhanced container support with multiple engine options.
+- [deps] Standardized conda environment specifications across all processes.
+- [deps] Added better version tracking for all bioinformatics tools.
 
 ## v1.0.1 - [2020-11-06]
 

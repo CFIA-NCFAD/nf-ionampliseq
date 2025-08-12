@@ -8,6 +8,13 @@ on:
   release:
     types: [published]
 
+env:
+  NXF_ANSI_LOG: false
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Run workflow tests
@@ -20,33 +27,14 @@ jobs:
     strategy:
       matrix:
         # Nextflow versions: check pipeline minimum and current latest
-        nxf_ver: ['20.07.0', '']
+        nxf_ver: ['22.10.1', '25.04.6']
     steps:
       - name: Check out pipeline code
-        uses: actions/checkout@v2
-
-      - name: Check if Dockerfile or Conda environment changed
-        uses: technote-space/get-diff-action@v1
-        with:
-          PREFIX_FILTER: |
-            Dockerfile
-            environment.yml
-
-      - name: Build new docker image
-        if: env.GIT_DIFF
-        run: docker build --no-cache . -t peterk87/nf-ionampliseq:1.0.0
-
-      - name: Pull docker image
-        if: ${{ !env.GIT_DIFF }}
-        run: |
-          docker pull peterk87/nf-ionampliseq:dev
-          docker tag peterk87/nf-ionampliseq:dev peterk87/nf-ionampliseq:1.0.0
-
+        uses: actions/checkout@v4
       - name: Install Nextflow
         run: |
           wget -qO- get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
-
       - name: Run pipeline with test data
         # TODO nf-core: You can customise CI pipeline run tests as required
         # For example: adding multiple test runs with different parameters

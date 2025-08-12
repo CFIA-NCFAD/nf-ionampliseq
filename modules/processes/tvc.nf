@@ -1,8 +1,8 @@
 process TVC {
   tag "$sample"
-  label 'process_low'
+  label 'process_medium'
 
-  container 'peterk87/nf-ionampliseq:1.0.0'
+  container 'ghcr.io/cfia-ncfad/nf-ionampliseq:2.0.0'
 
   input:
   tuple val(sample), path(bam), path(ref_fasta, stageAs: 'fasta/*'), path(bed_file)

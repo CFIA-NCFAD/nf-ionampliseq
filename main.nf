@@ -135,7 +135,6 @@ include { OUTPUT_DOCS } from './modules/processes/docs'
 include { MASH_SCREEN_MULTIQC_SUMMARY } from './modules/processes/mash'
 include { CONSENSUS_MULTIQC } from './modules/processes/multiqc'
 include { EDLIB_MULTIQC } from './modules/processes/edlib'
-include { COVERAGE_PLOT } from './modules/processes/plotting'
 
 workflow {
   ch_versions = Channel.empty()
@@ -330,8 +329,6 @@ workflow {
     ch_blast_mqc_table = Channel.empty()
   }
 
-  // TODO: use mosdepth bed.gz for COVERAGE_PLOT instead of samtools depth which is much slower
-
   // Edlib align consensus against ref seq
   EDLIB_ALIGN(BCFTOOLS_CONSENSUS.out.fasta.join(SEQTK_SUBSEQ.out.top_ref_fasta))
   ch_versions = ch_versions.mix(EDLIB_ALIGN.out.versions.first().ifEmpty(null))
@@ -347,8 +344,6 @@ workflow {
   // Stage config files
   ch_multiqc_config = file("$baseDir/assets/multiqc_config.yaml", checkIfExists: true)
   ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
-  // ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
-  // ch_output_docs_images = file("$baseDir/docs/images/", checkIfExists: true)
 
   Channel.from(summary.collect{ [it.key, it.value] })
     .map { k,v -> "<dt style=\"width:240px !important;\">$k</dt><dd style=\"margin-left:260px !important;\"><samp>${v != null ? v : '<span style=\"color:#999999;\">N/A</a>'}</samp></dd>" }
