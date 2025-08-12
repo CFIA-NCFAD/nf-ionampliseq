@@ -1,6 +1,6 @@
 # Docker container for CFIA-NCFAD/nf-ionampliseq
 
-* Container name: `ghcr.io/cfia-ncfad/nf-ionampliseq`
+- **Container name:** `ghcr.io/cfia-ncfad/nf-ionampliseq`
 
 This container hosted on the GitHub Container Registry at `ghcr.io` and specified in the [Dockerfile](../Dockerfile) provides the Thermo Fisher TMAP and TVC binaries for read mapping and variant calling of Ion Torrent data.
 
@@ -9,16 +9,19 @@ This container hosted on the GitHub Container Registry at `ghcr.io` and specifie
 The Docker container includes the following key components:
 
 ### Core Tools
+
 - **TMAP (Torrent Mapping Alignment Program)**: Thermo Fisher's read mapping tool for Ion Torrent data
 - **TVC (Torrent Variant Caller)**: Thermo Fisher's variant calling tool for Ion Torrent data
 - **TVC Utils**: Additional utilities for TVC processing
 - **TVC Assembly**: Assembly tools for TVC
 
 ### Supporting Tools
+
 - **Samtools v1.22.1**: For BAM file manipulation and indexing
 - **OpenBLAS**: Mathematical library required for TVC operations
 
 ### Base Image
+
 - **Ubuntu 22.04 (Plucky)**: Provides the underlying Linux environment
 
 ## Usage in the Pipeline
@@ -93,15 +96,20 @@ This approach optimizes the build process and ensures all components are properl
 
 1. Setup a GitHub personal access token
 2. Docker login to the `ghcr.io`
+
     ```bash
     export CR_PAT="GH personal access token"  # 
     echo $CR_PAT | docker login ghcr.io -u $GH_USERNAME --password-stdin
     ```
-3. Tag image appropriately 
+
+3. Tag image appropriately
+
     ```bash
     docker tag cfia-ncfad/nf-ionampliseq:latest ghcr.io/cfia-ncfad/nf-ionampliseq:latest
     ```
+
 4. Push the image to GitHub Container Registry
+
     ```bash
     docker push ghcr.io/cfia-ncfad/nf-ionampliseq:latest
     ```
@@ -118,15 +126,19 @@ docker run --rm ghcr.io/cfia-ncfad/nf-ionampliseq:latest samtools --version
 ## Container Configuration
 
 ### Environment Variables
+
 The container doesn't require specific environment variables to function, but you can override the default settings through Nextflow parameters.
 
 ### Resource Requirements
+
 - **Memory**: Recommended minimum 8GB RAM for TMAP/TVC processes
 - **CPU**: Multi-threading supported for both TMAP and TVC
 - **Storage**: Temporary storage needed for intermediate BAM files
 
 ### Volume Mounts
+
 When running the container directly (not through Nextflow), you may need to mount:
+
 - Input data directories
 - Output directories
 - Reference genome files
@@ -173,5 +185,3 @@ While this documentation focuses on Docker, the pipeline also supports:
 - **Charliecloud**: For secure container execution
 
 See the pipeline configuration files for specific container engine settings.
-
-

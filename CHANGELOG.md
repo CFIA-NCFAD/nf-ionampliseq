@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This release modernizes nf-ionampliseq to DSL-2 standards with enhanced BLAST analysis capabilities, improved containerization, and better resource management. Key additions include BLAST database integration, enhanced variant calling options, and comprehensive process version tracking.
 
 ### Added
+
 - [feat] `BLASTN` process to run `blastn` with consensus sequences against user-specifed DB (`--blast_db`).
 - [feat] `BLASTN_COVERAGE` process and `blast_coverage.py` for summarizing BLAST results and generating MultiQC tables.
 - [feat] `fill-tags` plugin for `BCFTOOLS_FILTER` and better filtering of variants for consensus sequence construction.
@@ -23,6 +24,7 @@ This release modernizes nf-ionampliseq to DSL-2 standards with enhanced BLAST an
 - [config] timestamped execution reports and timeline files in `nextflow.config`.
 
 ### Changes
+
 - [docs] Comprehensive documentation overhaul with detailed parameter descriptions and external tool references
 - [cleanup] Removed legacy plotting module and environment.yml file for simplified architecture. Use wgscovplot instead for better and interactive plotting of coverage stats and variants.
 - [cleanup] Simplified TMAP process configuration using dynamic arguments parameter.
@@ -54,6 +56,7 @@ This release modernizes nf-ionampliseq to DSL-2 standards with enhanced BLAST an
 - [ci] CI now tests with multiple Nextflow versions 22.10.1 and latest stable (25.04.6 currently).
 
 ### Fixed
+
 - [fix] Container compatibility issues across different container engines.
 - [fix] Process resource allocation and memory management.
 - [fix] Version tracking consistency across all processes.
@@ -61,6 +64,7 @@ This release modernizes nf-ionampliseq to DSL-2 standards with enhanced BLAST an
 - [fix] MultiQC report generation and custom content integration.
 
 ### Dependencies
+
 - [deps] Updated to Nextflow `!>=22.10.1`.
 - [deps] Enhanced container support with multiple engine options.
 - [deps] Standardized conda environment specifications across all processes.
@@ -70,7 +74,7 @@ This release modernizes nf-ionampliseq to DSL-2 standards with enhanced BLAST an
 
 Patch release to make MultiQC reports a bit more useful with consensus sequence FASTA files embedded for download.
 
-### `Added`
+### Added
 
 - Consensus sequence FASTA files are embedded within the MultiQC HTML report and can be downloaded from it.
 
@@ -78,19 +82,19 @@ Patch release to make MultiQC reports a bit more useful with consensus sequence 
 
 First release of peterk87/nf-ionampliseq workflow.
 
-### `Added`
+### Added
 
 - Edlib pairwise global alignment between consensus and reference sequences. Edlib alignment stats included in table in MultiQC report.
 - Updated MultiQC report to by default include more useful information.
 - Ion Torrent test dataset at [github.com/peterk87/nf-test-datasets](https://github.com/peterk87/nf-test-datasets/) for use with `-profile test`
 - Output documentation
 
-### `Fixed`
+### Fixed
 
 - CI and linting Github Actions workflows.
 - Documentation
 
-### `Dependencies`
+### Dependencies
 
 Python:
 

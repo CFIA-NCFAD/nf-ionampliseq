@@ -75,7 +75,7 @@ If you wish to use custom names and a specific AmpliSeq panel it is recommended 
 ### Steps
 
 1. [BAM Sample Info](docs/output.md#bam-sample-info) - Sample info extracted from BAM file headers
-2. [FASTQ Reads](#fastq-reads) - BAM to FASTQ output with [Samtools][].
+2. [FASTQ Reads](docs/output.md#fastq-reads) - BAM to FASTQ output with [Samtools][].
 3. [FastQC](docs/output.md#fastqc) - Read quality control using [FastQC][].
 4. [Mash](docs/output.md#mash) - Top reference genome determination by [Mash][] screen
 5. [TMAP](docs/output.md#tmap) - Read mapping using the Thermo Fisher mapper [tmap]
@@ -84,9 +84,9 @@ If you wish to use custom names and a specific AmpliSeq panel it is recommended 
 8. [TVC](docs/output.md#tvc) - Variant calling using the Thermo Fisher variant caller [tvc]
 9. [Bcftools](docs/output.md#bcftools) - Variant filtering for majority consensus sequence generation and variant statistics for MultiQC report.
 10. [Consensus Sequence](docs/output.md#consensus-sequence) - Majority consensus sequence with `N` masking of low/no coverage positions using [Bcftools][].
-11. [Edlib Pairwise Alignment](docs/output.md#edlib-pairwise-alignment) - Pairwise global alignment and edit distance between reference and consensus sequences.
+11. [Edlib Pairwise Alignment](docs/output.md#edlib-pairwise-alignment) - Pairwise global alignment and edit distance between reference and consensus sequences using [Edlib].
 12. [BLAST Analysis](docs/output.md#blast-analysis) - Optional nucleotide [BLAST][] analysis against a user-specified BLAST DB
-13. [MultiQC](docs/output.md#multiqc) - Aggregate report describing results from the whole pipeline. Consensus sequences are embedded in the MultiQC HTML report and can be downloaded from it.
+13. [MultiQC](docs/output.md#multiqc) - Aggregate report describing results from the whole pipeline. Consensus sequences are embedded in the [MultiQC][] HTML report and can be downloaded from it.
 14. [Pipeline information](docs/output.md#pipeline-information) - Report metrics generated during the workflow execution
 
 ### Output
@@ -121,7 +121,6 @@ You can cite the `nf-core` publication as follows:
 
 <!-- External links and references -->
 
-[bcftools]: https://samtools.github.io/bcftools/bcftools.html
 [Bcftools]: https://samtools.github.io/bcftools/bcftools.html
 [BLAST]: https://blast.ncbi.nlm.nih.gov/
 [CSFV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi
@@ -130,11 +129,8 @@ You can cite the `nf-core` publication as follows:
 [FMDV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=12110&lvl=3&lin=f&keep=1&srchmode=1&unlock
 [Mash]: https://doi.org/10.1186/s13059-019-1841-x
 [Mosdepth]: https://github.com/brentp/mosdepth
+[MultiQC]: https://docs.seqera.io/multiqc
 [Samtools]: https://www.htslib.org/
-[tmap]: https://github.com/iontorrent/TS/
 [TMAP]: https://github.com/iontorrent/TS/
 [Torrent Suite]: https://github.com/iontorrent/TS
-[tvc]: http://updates.iontorrent.com/tvc_standalone/
 [TVC]: http://updates.iontorrent.com/tvc_standalone/
-[variantCaller]: https://github.com/iontorrent/TS/tree/master/plugin/variantCaller
-

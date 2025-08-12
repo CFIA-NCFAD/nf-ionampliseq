@@ -56,7 +56,7 @@ For further reading and documentation see the [FastQC help pages](http://www.bio
 * `fastqc/zips/`
   * `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
 
-> **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
+> **NB:** The FastQC plots displayed in the MultiQC report shows *untrimmed* reads. They may contain adapter sequence and potentially regions with low quality.
 
 ## Mash
 
@@ -72,7 +72,7 @@ For further reading and documentation see the [FastQC help pages](http://www.bio
 
 ## TMAP
 
-The Thermo Fisher Scientific read mapper ([TMAP][]) is used for read mapping of the Ion Torrent reads against the top reference genome. The run parameters for [tmap] are similar to those of the [variantCaller] plugin of the [Torrent Suite] Ion Torrent analysis platform.
+The Thermo Fisher Scientific read mapper ([TMAP][]) is used for read mapping of the Ion Torrent reads against the top reference genome. The run parameters for [TMAP] are similar to those of the [variantCaller] plugin of the [Torrent Suite] Ion Torrent analysis platform.
 
 **Output files:**
 
@@ -145,7 +145,7 @@ Variants detected by [TVC] are normalized and filtered by [Bcftools][] to determ
 
 ## BLAST Analysis
 
-[BLAST](https://blast.ncbi.nlm.nih.gov/) is used to search consensus sequences against user-specified databases for virus strain identification and sequence similarity analysis. This step is optional and requires the `--blast_db` parameter to be specified (e.g. `nextflow run CFIA-NCFAD/nf-ionampliseq ... --blast_db /path/to/blast_db/core_nt`).
+[BLAST] is used to search consensus sequences against user-specified databases for virus strain identification and sequence similarity analysis. This step is optional and requires the `--blast_db` parameter to be specified (e.g. `nextflow run CFIA-NCFAD/nf-ionampliseq ... --blast_db /path/to/blast_db/core_nt`).
 
 **Output files:**
 
@@ -207,9 +207,7 @@ For more information about how to use MultiQC reports, see [https://multiqc.info
 [Mosdepth]: https://github.com/brentp/mosdepth
 [BLAST]: https://blast.ncbi.nlm.nih.gov/
 [Samtools]: https://www.htslib.org/
-[tmap]: https://github.com/iontorrent/TS/
 [TMAP]: https://github.com/iontorrent/TS/
-[tvc]: http://updates.iontorrent.com/tvc_standalone/
 [TVC]: http://updates.iontorrent.com/tvc_standalone/
 [variantCaller]: https://github.com/iontorrent/TS/tree/master/plugin/variantCaller
 [Torrent Suite]: https://github.com/iontorrent/TS

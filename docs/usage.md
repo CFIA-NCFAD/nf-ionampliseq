@@ -4,7 +4,7 @@
 
 This pipeline performs read mapping and variant calling with Thermo Fisher developed open-source tools, [TMAP] and [TVC] to produce more accurate read mapping and variant calling results from Ion Torrent AmpliSeq sequence data. The pipeline also generates a consensus sequence and comprehensive QC stats and results report using MultiQC.
 
-This workflow currently includes several built-in analysis packages for Ion Torrent AmpliSeq sequence data of [CSFV] and [FMDV]. Users can also specify their own AmpliSeq panels, however, these files (reference sequences FASTA and detailed BED file) must be compatible with the Ion Torrent Software Suite including [tmap] and [tvc].
+This workflow currently includes several built-in analysis packages for Ion Torrent AmpliSeq sequence data of [CSFV] and [FMDV]. Users can also specify their own AmpliSeq panels, however, these files (reference sequences FASTA and detailed BED file) must be compatible with the Ion Torrent Software Suite including [TMAP] and [TVC].
 
 ## Running the pipeline
 
@@ -449,20 +449,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 
 <!-- External links and references -->
 
-[bcftools]: https://samtools.github.io/bcftools/bcftools.html
-[Bcftools]: https://samtools.github.io/bcftools/bcftools.html
-[BLAST]: https://blast.ncbi.nlm.nih.gov/
 [CSFV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Undef&id=3052625&lvl=3&keep=1&srchmode=1&unlock
-[EBOV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=186536&lvl=3&lin=f&keep=1&srchmode=1&unlock
-[Edlib]: https://github.com/Martinsos/edlib
 [FMDV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=12110&lvl=3&lin=f&keep=1&srchmode=1&unlock
-[Mash]: https://doi.org/10.1186/s13059-019-1841-x
-[Mosdepth]: https://github.com/brentp/mosdepth
-[Samtools]: https://www.htslib.org/
-[tmap]: https://github.com/iontorrent/TS/
 [TMAP]: https://github.com/iontorrent/TS/
-[Torrent Suite]: https://github.com/iontorrent/TS
-[tvc]: http://updates.iontorrent.com/tvc_standalone/
 [TVC]: http://updates.iontorrent.com/tvc_standalone/
-[variantCaller]: https://github.com/iontorrent/TS/tree/master/plugin/variantCaller
-[ZIKV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=64320&lvl=3&lin=f&keep=1&srchmode=1&unlock
