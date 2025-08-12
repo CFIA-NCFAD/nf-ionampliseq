@@ -3,59 +3,67 @@
 */
 
 process SAMPLE_INFO_FROM_BAM {
-  publishDir "${params.outdir}/bam_sample_info",
-             pattern: "*.tsv",
-             mode: params.publish_dir_mode
+  tag "$bam"
+
+  conda 'bioconda::pysam bioconda::biopython conda-forge::pandas conda-forge::rich conda-forge::typer'
+  // biocontainers/multi-package-containers image for 
+  // python=3.9,pysam,biopython,click,pandas,numpy,ete3
+  if (workflow.containerEngine == 'singularity' && !params.singularity_pull_docker_container) {
+    container 'https://depot.galaxyproject.org/singularity/mulled-v2-c31f862d526d0a07196020b22083c45f8ddb4f0d:5d34a7705065087f5129c939eea53217c22e38df-0'
+  } else {
+    container 'quay.io/biocontainers/mulled-v2-c31f862d526d0a07196020b22083c45f8ddb4f0d:5d34a7705065087f5129c939eea53217c22e38df-0'
+  }
+
+
   input:
   path(bam)
 
   output:
-  tuple path(bam),
-        path('sample_name.txt'),
-        path('ampliseq_panel.txt'), emit: sample_info
-  path '*.tsv'
+  tuple path(bam), path('sample_name.txt'), path('ampliseq_panel.txt'), emit: sample_info
+  path('*.tsv'), emit: tsv
+  path('versions.yml'), emit: versions
 
   script:
   """
-  parse_bam_sample_info.py \\
+  sample_info_from_bam.py \\
     -i $bam \\
     -o sample_name.txt \\
     -p ampliseq_panel.txt \\
     --write-sample-info
+
+  cat <<-END_VERSIONS > versions.yml
+  "${task.process}":
+      sample_info_from_bam.py: \$(sample_info_from_bam.py --version)
+  END_VERSIONS
   """
 }
 
 process CHECK_SAMPLE_SHEET {
-    tag "$samplesheet"
-    publishDir "${params.outdir}/pipeline_info", mode: params.publish_dir_mode
-
-    input:
-    path samplesheet
-
-    output:
-    path "samplesheet_reformat.csv" 
-
-    script:
-    """
-    check_sample_sheet.py $samplesheet samplesheet_reformat.csv
-    """
-}
-
-process BAM_TO_FASTQ {
-  tag "$sample"
-  publishDir "${params.outdir}/reads/fastq",
-             pattern: "*.fastq.gz",
-             mode: params.publish_dir_mode
+  tag "$samplesheet"
+  
+  conda 'bioconda::edlib bioconda::biopython conda-forge::pandas conda-forge::rich conda-forge::typer'
+  // multicontainer for 
+  // python=3.10,biopython=1.80,pandas=1.5.3,rich=12.6.0,typer=0.7.0,numpy=1.24.2,edlib=1.3.9
+  if (workflow.containerEngine == 'singularity' && !params.singularity_pull_docker_container) {
+    container 'https://depot.galaxyproject.org/singularity/mulled-v2-4627b14ef9fdc900fafc860cd08c19d7fbb92f43:3aae397a063ad1c6f510775118a2c5e6acbc027d-0'
+  } else {
+    container 'quay.io/biocontainers/mulled-v2-4627b14ef9fdc900fafc860cd08c19d7fbb92f43:3aae397a063ad1c6f510775118a2c5e6acbc027d-0'
+  }
 
   input:
-  tuple val(sample), path(bam)
+  path(samplesheet)
 
   output:
-  tuple val(sample), path("*.fastq.gz")
+  path "samplesheet_reformat.csv", emit: samplesheet
+  path('versions.yml'), emit: versions
 
   script:
   """
-  samtools fastq $bam | pigz -c - > ${sample}.fastq.gz
+  check_sample_sheet.py $samplesheet samplesheet_reformat.csv
+  cat <<-END_VERSIONS > versions.yml
+  "${task.process}":
+      check_sample_sheet.py: \$(check_sample_sheet.py --version)
+  END_VERSIONS
   """
 }
 

@@ -13,8 +13,11 @@ logger = logging.getLogger(__name__)
 
 regex_fasta_filename = re.compile(r'.+\/([^\/]+)\.fasta\b.*')
 
+VERSION = '1.0.0'
+
 
 @click.command()
+@click.version_option(VERSION, message='%(version)s')
 @click.option('-i', '--input-bam', type=click.Path(exists=True), required=True)
 @click.option('-o', '--output-sample-name', type=click.Path(exists=False), required=True)
 @click.option('-p', '--output-ampliseq-panel', type=click.Path(exists=False), required=True)

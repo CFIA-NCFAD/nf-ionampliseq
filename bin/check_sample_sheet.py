@@ -5,8 +5,10 @@ from pathlib import Path
 import click
 import pandas as pd
 
+VERSION = "1.0.0"
 
 @click.command()
+@click.version_option(VERSION, message='%(version)s')
 @click.argument('input_sample_sheet', type=click.Path(exists=True))
 @click.argument('output_sample_sheet', type=click.Path(exists=False))
 def main(input_sample_sheet,

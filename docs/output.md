@@ -1,4 +1,4 @@
-# peterk87/nf-ionampliseq: Output
+# CFIA-NCFAD/nf-ionampliseq: Output
 
 This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
 
@@ -134,20 +134,20 @@ The Thermo Fisher Scientific read mapper ([TMAP][]) is used for read mapping of 
 
 ## Bcftools
 
-Variants detected by [TVC] are normalized and filtered by [Bcftools][] to find the majority allele at each position. Bcftools is also used to report the number of SNPs, MNPs and indels detected as well as transitions/transversions (Ts/Tv). Bcftools statistics are reported in the MultiQC report general stats table.
+Variants detected by [TVC] are normalized and filtered by [Bcftools][] to determine the high-confidence minor alleles (allele fraction (AF) >= 0.25 by default) and high-confidence major alleles (AF >= 0.75 by default). Supplemental information is added to the VCF using the Bcftools [fill-tags plugin](https://samtools.github.io/bcftools/howtos/plugin.fill-tags.html). Bcftools is also used to report the number of SNPs, MNPs and indels detected as well as transitions/transversions (Ts/Tv). Bcftools statistics are reported in the MultiQC report general stats table.
 
 **Output files:**
 
 * `variants/`
-  * `bcftools/`
-    * `*.bcftools_stats.txt`: Variant statistics file used by MultiQC for reporting and visualization.
-  * `vcf/`
-    * `*.norm.vcf`: Bcftools normalized VCF (multiallelic sites are split into individual records for easier filtering).
-    * `*.norm.filt.vcf`: Variants filtered for majority allele using Bcftools. These are the variants used for generating the majority consensus sequence.
+  * `bcftools_stats/`
+    * `${sample}.bcftools_stats.txt`: Variant statistics file used by MultiQC for reporting and visualization.
+  * `${sample}/`
+    * `${sample}.bcftools_filt.vcf`: Bcftools normalized, supplemented with additional allele info (Bcftools fill-tags plugin) and filtered VCF. This is the VCF that is used for consensus sequence generation with Bcftools. Multiallelic sites are split into individual records for easier filtering and consensus sequence generation.
+    * `${sample}-ref.fasta`: Reference sequence used for variant calling.
 
 ## Consensus Sequence
 
-A majority consensus sequence is constructed from a coverage depth masked reference sequence (low/no coverage reference sequence positions are replaced with `N`) and variants normalized and filtered by [Bcftools][] using [vcf_consensus_builder][].
+A majority consensus sequence is constructed with [Bcftools][] `consensus` from a coverage depth masked reference sequence (low/no coverage reference sequence positions are replaced with `N`) and variants normalized and filtered by [Bcftools][] according to the minor and major allele fraction thresholds (workflow params `minor_allele_fraction = 0.25` and `major_allele_fraction = 0.75` by default). Positions with allele frequencies between the minor and major allele fraction threshold will appear as ambiguous nucleotides.
 
 **Output files:**
 
@@ -216,5 +216,4 @@ For more information about how to use MultiQC reports, see [https://multiqc.info
 [Torrent Suite]: https://github.com/iontorrent/TS
 [Mash]: https://mash.readthedocs.io/en/latest/
 [Bcftools]: https://samtools.github.io/bcftools/bcftools.html
-[vcf_consensus_builder]: https://github.com/peterk87/vcf_consensus_builder
 [Edlib]: https://github.com/Martinsos/edlib

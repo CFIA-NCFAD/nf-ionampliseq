@@ -51,6 +51,19 @@
                     "fa_icon": "fas fa-table",
                     "description": "Detailed BED file containing AmpliSeq amplicon coordinates and information."
                 },
+                "output_unmapped_reads": {
+                    "type": "boolean",
+                    "default": false,
+                    "fa_icon": "fas fa-compress-alt",
+                    "description": "Whether or not to include unmapped reads in TMAP BAM output."
+                },
+                "blast_db": {
+                    "type": "string",
+                    "default": null,
+                    "fa_icon": "fas fa-database",
+                    "description": "BLAST database prefix for sequence similarity searches (e.g. `nt` or `core_nt`).",
+                    "help_text": "Path to a BLAST database (e.g. `nt` or `core_nt`)."
+                },
                 "outdir": {
                     "type": "string",
                     "description": "The output directory where the results will be saved.",
@@ -95,9 +108,46 @@
                     "type": "integer",
                     "default": 4000000,
                     "fa_icon": "far fa-hand-lizard"
+                },
+                "trim_primers": {
+                    "type": "boolean",
+                    "default": false,
+                    "fa_icon": "fas fa-scissors",
+                    "description": "Enable TVC AmpliSeq primer trimming"
                 }
             },
             "fa_icon": "fas fa-stream"
+        },
+        "variant_calling_options": {
+            "title": "Variant calling options",
+            "type": "object",
+            "description": "Various options for the variant calling branch of the pipeline.",
+            "default": "",
+            "properties": {
+                "minor_allele_fraction": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1.0,
+                    "default": 0.25,
+                    "description": "Minor variant allele frequency/fraction.",
+                    "fa_icon": "fas fa-compress-alt"
+                },
+                "major_allele_fraction": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1.0,
+                    "default": 0.75,
+                    "description": "Major variant allele frequency/fraction. Only major variant alleles are used for generating a consensus sequence.",
+                    "fa_icon": "fas fa-expand-alt"
+                },
+                "low_coverage": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 10,
+                    "description": "Low coverage depth threshold. Consensus sequence positions with less than this coverage depth will be masked with `N`."
+                }
+            },
+            "fa_icon": "fas fa-dna"
         },
         "mash_screen_parameters": {
             "title": "Mash Screen Parameters",
@@ -325,6 +375,9 @@
         },
         {
             "$ref": "#/definitions/tvc_parameters"
+        },
+        {
+            "$ref": "#/definitions/variant_calling_options"
         },
         {
             "$ref": "#/definitions/consensus_sequence_options"

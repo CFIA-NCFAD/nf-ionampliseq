@@ -1,4 +1,4 @@
-# peterk87/nf-ionampliseq: Usage
+# CFIA-NCFAD/nf-ionampliseq: Usage
 
 ## Introduction
 
@@ -11,7 +11,7 @@ This workflow currently includes several built-in analysis packages for Ion Torr
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run peterk87/nf-ionampliseq --input '/path/to/ion-torrent/*.bam' -profile docker
+nextflow run CFIA-NCFAD/nf-ionampliseq --input '/path/to/ion-torrent/*.bam' -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -30,14 +30,14 @@ results         # Finished results (configurable, see below)
 The help and usage information for this pipeline can be displayed in your terminal with:
 
 ```bash
-nextflow run peterk87/nf-ionampliseq --help
+nextflow run CFIA-NCFAD/nf-ionampliseq --help
 ```
 
 Which should show a help and usage message like this:
 
 ```text
 ==================================================================
-peterk87/nf-ionampliseq   ~  version 1.0.0dev
+CFIA-NCFAD/nf-ionampliseq   ~  version 1.0.0dev
 ==================================================================
 
   Git info: XXX - YYY [ZZZ]
@@ -46,7 +46,7 @@ Usage:
 
 The typical command for running the pipeline is as follows:
 
-$ nextflow run peterk87/nf-ionampliseq \
+$ nextflow run CFIA-NCFAD/nf-ionampliseq \
     --input '/path/to/iontorrent/*.bam' \
     --outdir ./results \
     -profile docker # Recommended to run workflow with either Docker or Singularity enabled
@@ -90,14 +90,14 @@ Other Options:
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-nextflow pull peterk87/nf-ionampliseq
+nextflow pull CFIA-NCFAD/nf-ionampliseq
 ```
 
 ### Reproducibility
 
 It's a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-First, go to the [peterk87/nf-ionampliseq releases page](https://github.com/peterk87/nf-ionampliseq/releases) and find the latest version number - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`.
+First, go to the [CFIA-NCFAD/nf-ionampliseq releases page](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases) and find the latest version number - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`.
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future.
 
@@ -122,10 +122,10 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 
 * `docker`
   * A generic configuration profile to be used with [Docker](https://docker.com/)
-  * Pulls software from Docker Hub: [`peterk87/nf-ionampliseq`](https://hub.docker.com/r/peterk87/nf-ionampliseq/)
+  * Pulls software from Docker Hub: [`CFIA-NCFAD/nf-ionampliseq`](https://hub.docker.com/r/CFIA-NCFAD/nf-ionampliseq/)
 * `singularity`
   * A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
-  * Pulls software from Docker Hub: [`peterk87/nf-ionampliseq`](https://hub.docker.com/r/peterk87/nf-ionampliseq/)
+  * Pulls software from Docker Hub: [`CFIA-NCFAD/nf-ionampliseq`](https://hub.docker.com/r/CFIA-NCFAD/nf-ionampliseq/)
 * `conda`
   * Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker or Singularity.
   * A generic configuration profile to be used with [Conda](https://conda.io/docs/)
