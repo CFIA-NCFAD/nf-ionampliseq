@@ -1,15 +1,15 @@
-# peterk87/nf-ionampliseq
+# CFIA-NCFAD/nf-ionampliseq
 
 Read mapping, variant calling and consensus sequence generation workflow for Ion Torrent Ampliseq sequence data of [FMDV] and [CSFV].
 
-> **NB:** Built-in Ion Torrent AmpliSeq panels for Zika virus ([ZIKV]), Ebola virus ([EBOV]) and SARS-CoV-2 will be added shortly!
+[![DOI](https://zenodo.org/badge/DOI/10.XXXX/zenodo.XXXX.svg)](https://doi.org/10.XXXX/zenodo.XXXX)
+[![CI](https://github.com/CFIA-NCFAD/nf-ionampliseq/workflows/CI/badge.svg)](https://github.com/CFIA-NCFAD/nf-ionampliseq/actions)
 
-[![GitHub Actions CI Status](https://github.com/peterk87/nf-ionampliseq/workflows/CI/badge.svg)](https://github.com/peterk87/nf-ionampliseq/actions)
-[![GitHub Actions Linting Status](https://github.com/peterk87/nf-ionampliseq/workflows/nf-core%20linting/badge.svg)](https://github.com/peterk87/nf-ionampliseq/actions)
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A519.10.0-brightgreen.svg)](https://www.nextflow.io/)
-
-[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg)](https://bioconda.github.io/)
-[![Docker](https://img.shields.io/docker/automated/peterk87/nf-ionampliseq.svg)](https://hub.docker.com/r/peterk87/nf-ionampliseq)
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A525.04.6-brightgreen.svg)](https://www.nextflow.io/)
+[![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
+[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
+[![run with apptainer](https://img.shields.io/badge/run%20with-apptainer-1d355c.svg?labelColor=000000)](https://apptainer.org/)
+[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
 
 ## Introduction
 
@@ -24,7 +24,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 3. Download the pipeline and test it on a minimal dataset with a single command:
 
     ```bash
-    nextflow run peterk87/nf-ionampliseq -profile test,<docker/singularity/conda/institute>
+    nextflow run CFIA-NCFAD/nf-ionampliseq -profile test,<docker/singularity/conda/institute>
     ```
 
     > Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
@@ -34,14 +34,14 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
     <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
     ```bash
-    nextflow run peterk87/nf-ionampliseq -profile <docker/singularity/conda/institute> --input '/path/to/iontorrent/*.bam'
+    nextflow run CFIA-NCFAD/nf-ionampliseq -profile <docker/singularity/conda/institute> --input '/path/to/iontorrent/*.bam'
     ```
 
 See [usage docs](docs/usage.md) for all of the available options when running the pipeline.
 
 ## Documentation
 
-The peterk87/nf-ionampliseq pipeline comes with documentation about the pipeline which you can read at [https://peterk87/nf-ionampliseq/docs](https://peterk87/nf-ionampliseq/docs) or find in the [`docs/` directory](docs).
+The CFIA-NCFAD/nf-ionampliseq pipeline comes with documentation about the pipeline which you can read at [https://CFIA-NCFAD/nf-ionampliseq/docs](https://CFIA-NCFAD/nf-ionampliseq/docs) or find in the [`docs/` directory](docs).
 
 This workflow includes several built-in analysis packages for Ion Torrent AmpliSeq sequence data of [CSFV] and [FMDV]. Users can also specify their own analysis packages, however, these files must be compatible with the Ion Torrent Software Suite including [tmap] and [tvc]
 
@@ -52,7 +52,7 @@ There are three methods of specifying input: `--input`; `--rundir`; `--sample_sh
 The simplest way of running this workflow is with `--input` pointing at your Ion Torrent [Torrent Suite] produced BAM files:
 
 ```bash
-nextflow run peterk87/nf-ionampliseq -profile <docker/singularity> --input '/path/to/*.bam'
+nextflow run CFIA-NCFAD/nf-ionampliseq -profile <docker/singularity> --input '/path/to/*.bam'
 ```
 
 With BAM file inputs specified via `--input`, the sample name and correct AmpliSeq panel (either [CSFV] or [FMDV]) will be determined from the BAM file headers.
@@ -60,7 +60,7 @@ With BAM file inputs specified via `--input`, the sample name and correct AmpliS
 You can also specify the Ion Torrent sequencing run directory as input with `--rundir`. All BAM files matching `IonCode_*_rawlib.bam` will be run through the workflow with sample names retrieved from the `ion_params_00.json`.
 
 ```bash
-nextflow run peterk87/nf-ionampliseq -profile <docker/singularity> --rundir /path/to/rundir
+nextflow run CFIA-NCFAD/nf-ionampliseq -profile <docker/singularity> --rundir /path/to/rundir
 ```
 
 If you wish to use custom names and a specific AmpliSeq panel it is recommended that you specify the following:
@@ -75,18 +75,18 @@ If you wish to use custom names and a specific AmpliSeq panel it is recommended 
 ### Steps
 
 1. [BAM Sample Info](docs/output.md#bam-sample-info) - Sample info extracted from BAM file headers
-2. [FASTQ Reads](#fastq-reads) - BAM to FASTQ output
-3. [FastQC](docs/output.md#fastqc) - Read quality control
+2. [FASTQ Reads](docs/output.md#fastq-reads) - BAM to FASTQ output with [Samtools][].
+3. [FastQC](docs/output.md#fastqc) - Read quality control using [FastQC][].
 4. [Mash](docs/output.md#mash) - Top reference genome determination by [Mash][] screen
 5. [TMAP](docs/output.md#tmap) - Read mapping using the Thermo Fisher mapper [tmap]
 6. [Samtools](docs/output.md#samtools) - Read mapping stats calculation with [Samtools][]
 7. [Mosdepth](docs/output.md#mosdepth) - Coverage stats calculated by [Mosdepth][]
 8. [TVC](docs/output.md#tvc) - Variant calling using the Thermo Fisher variant caller [tvc]
 9. [Bcftools](docs/output.md#bcftools) - Variant filtering for majority consensus sequence generation and variant statistics for MultiQC report.
-10. [Consensus Sequence](docs/output.md#consensus-sequence) - Majority consensus sequence with `N` masking of low/no coverage positions.
-11. [Edlib Pairwise Alignment](docs/output.md#edlib-pairwise-alignment) - Pairwise global alignment and edit distance between reference and consensus sequences.
-12. [Coverage Plots](#coverage-plots) - Coverage plots with/without low/no coverage and/or variants highlighted with linear and log10 scaling of y-axis depth values.
-13. [MultiQC](docs/output.md#multiqc) - Aggregate report describing results from the whole pipeline. Consensus sequences are embedded in the MultiQC HTML report and can be downloaded from it.
+10. [Consensus Sequence](docs/output.md#consensus-sequence) - Majority consensus sequence with `N` masking of low/no coverage positions using [Bcftools][].
+11. [Edlib Pairwise Alignment](docs/output.md#edlib-pairwise-alignment) - Pairwise global alignment and edit distance between reference and consensus sequences using [Edlib].
+12. [BLAST Analysis](docs/output.md#blast-analysis) - Optional nucleotide [BLAST][] analysis against a user-specified BLAST DB
+13. [MultiQC](docs/output.md#multiqc) - Aggregate report describing results from the whole pipeline. Consensus sequences are embedded in the [MultiQC][] HTML report and can be downloaded from it.
 14. [Pipeline information](docs/output.md#pipeline-information) - Report metrics generated during the workflow execution
 
 ### Output
@@ -95,7 +95,7 @@ For more information about the analysis steps and output of the pipeline, see th
 
 ## Credits
 
-peterk87/nf-ionampliseq was originally written by Peter Kruczkiewicz.
+CFIA-NCFAD/nf-ionampliseq was originally written by Peter Kruczkiewicz.
 
 ## Contributions and Support
 
@@ -108,7 +108,7 @@ The development of this pipeline tries to follow the guidelines and best-practic
 ## Citation
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi. -->
-<!-- If you use  peterk87/nf-ionampliseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+<!-- If you use  CFIA-NCFAD/nf-ionampliseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
 You can cite the `nf-core` publication as follows:
 
@@ -121,20 +121,16 @@ You can cite the `nf-core` publication as follows:
 
 <!-- External links and references -->
 
-[bcftools]: https://samtools.github.io/bcftools/bcftools.html
 [Bcftools]: https://samtools.github.io/bcftools/bcftools.html
+[BLAST]: https://blast.ncbi.nlm.nih.gov/
 [CSFV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi
-[EBOV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=186536&lvl=3&lin=f&keep=1&srchmode=1&unlock
 [Edlib]: https://github.com/Martinsos/edlib
+[FastQC]: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/
 [FMDV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=12110&lvl=3&lin=f&keep=1&srchmode=1&unlock
 [Mash]: https://doi.org/10.1186/s13059-019-1841-x
 [Mosdepth]: https://github.com/brentp/mosdepth
+[MultiQC]: https://docs.seqera.io/multiqc
 [Samtools]: https://www.htslib.org/
-[tmap]: https://github.com/iontorrent/TS/
 [TMAP]: https://github.com/iontorrent/TS/
 [Torrent Suite]: https://github.com/iontorrent/TS
-[tvc]: http://updates.iontorrent.com/tvc_standalone/
 [TVC]: http://updates.iontorrent.com/tvc_standalone/
-[variantCaller]: https://github.com/iontorrent/TS/tree/master/plugin/variantCaller
-[vcf_consensus_builder]: https://github.com/peterk87/vcf_consensus_builder
-[ZIKV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=64320&lvl=3&lin=f&keep=1&srchmode=1&unlock

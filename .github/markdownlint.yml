@@ -1,5 +1,6 @@
 # Markdownlint configuration file
 default: true,
 line-length: false
-no-duplicate-header:
+ul-style: false
+no-duplicate-heading:
     siblings_only: true

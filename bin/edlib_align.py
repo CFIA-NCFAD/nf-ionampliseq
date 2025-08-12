@@ -8,8 +8,10 @@ import edlib
 import pandas
 from Bio import SeqIO
 
+VERSION = "1.0.0"
 
 @click.command()
+@click.version_option(VERSION, message="%(version)s")
 @click.option('--sample', required=True)
 @click.option('--consensus', required=True, type=click.Path(exists=True))
 @click.option('--reference', required=True, type=click.Path(exists=True))

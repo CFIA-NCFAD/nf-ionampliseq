@@ -1,17 +1,17 @@
-# peterk87/nf-ionampliseq: Usage
+# CFIA-NCFAD/nf-ionampliseq: Usage
 
 ## Introduction
 
 This pipeline performs read mapping and variant calling with Thermo Fisher developed open-source tools, [TMAP] and [TVC] to produce more accurate read mapping and variant calling results from Ion Torrent AmpliSeq sequence data. The pipeline also generates a consensus sequence and comprehensive QC stats and results report using MultiQC.
 
-This workflow currently includes several built-in analysis packages for Ion Torrent AmpliSeq sequence data of [CSFV] and [FMDV]. Users can also specify their own AmpliSeq panels, however, these files (reference sequences FASTA and detailed BED file) must be compatible with the Ion Torrent Software Suite including [tmap] and [tvc].
+This workflow currently includes several built-in analysis packages for Ion Torrent AmpliSeq sequence data of [CSFV] and [FMDV]. Users can also specify their own AmpliSeq panels, however, these files (reference sequences FASTA and detailed BED file) must be compatible with the Ion Torrent Software Suite including [TMAP] and [TVC].
 
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run peterk87/nf-ionampliseq --input '/path/to/ion-torrent/*.bam' -profile docker
+nextflow run CFIA-NCFAD/nf-ionampliseq --input '/path/to/ion-torrent/*.bam' -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -30,59 +30,7 @@ results         # Finished results (configurable, see below)
 The help and usage information for this pipeline can be displayed in your terminal with:
 
 ```bash
-nextflow run peterk87/nf-ionampliseq --help
-```
-
-Which should show a help and usage message like this:
-
-```text
-==================================================================
-peterk87/nf-ionampliseq   ~  version 1.0.0dev
-==================================================================
-
-  Git info: XXX - YYY [ZZZ]
-
-Usage:
-
-The typical command for running the pipeline is as follows:
-
-$ nextflow run peterk87/nf-ionampliseq \
-    --input '/path/to/iontorrent/*.bam' \
-    --outdir ./results \
-    -profile docker # Recommended to run workflow with either Docker or Singularity enabled
-
-Input Options:
-  --input           Path to BAM files (e.g. 'ion-torrent/*.bam'). Sample names and AmpliSeq panel will be inferred from the BAM file headers. [Recommended run mode]
-  --rundir          Path to Ion Torrent sequencing run containing 'IonCode_*_rawlib.bam' and 'ion_params_00.json' output files.
-  --sample_sheet    Sample sheet CSV, TSV, ODS or XLSX file.
-  --panel           AmpliSeq panel to run. Choice of 'fmd' or 'csf'. Only needs to be specified with '--sample_sheet'.
-  --ref_fasta       Custom AmpliSeq panel reference sequences FASTA.
-  --bed_file        Custom AmpliSeq detailed BED file accompanying '--ref_fasta'.
-
-Mash Screen Options:
-  --mash_k          Mash sketch kmer size (default: 19)
-  --mash_s          Mash sketch number of sketch hashes (default: 10000)
-
-TVC Options:
-  --tvc_error_motifs_dir        Directory with Ion Torrent TVC error motifs (default: /home/pkruczkiewicz/sandbox/2020-09-21-fmdv-ion-torrent-weird-gap/ionampliseq/data/tvc-sse)
-  --tvc_read_limit              TVC read limit (default: 4000000)
-  --tvc_downsample_to_coverage  TVC downsample to at most X coverage (default: X=8000)
-  --tvc_min_mapping_qv          TVC min mapping quality value (default: 0)
-  --tvc_read_snp_limit          TVC: do not use reads with number of SNPs about this (default: 20)
-
-Cluster Options:
-  --slurm_queue       Name of SLURM queue to run workflow on. Must be specified with -profile slurm.
-  --slurm_queue_size  Maximum number of Slurm jobs to queue (default: 100)
-
-Other Options:
-  --outdir          The output directory where the results will be saved
-                    (default: ./results)
-  -w/--work-dir     The temporary directory where intermediate data will be
-                    saved (default: /home/pkruczkiewicz/sandbox/2020-09-21-fmdv-ion-torrent-weird-gap/ionampliseq/test/derp/work)
-  -profile          Configuration profile to use. [standard, singularity,
-                    conda, slurm] (default 'standard')
-  --tracedir        Pipeline run info output directory (default:
-                    ./results/pipeline_info)
+nextflow run CFIA-NCFAD/nf-ionampliseq --help
 ```
 
 ### Updating the pipeline
@@ -90,16 +38,337 @@ Other Options:
 When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
 
 ```bash
-nextflow pull peterk87/nf-ionampliseq
+nextflow pull CFIA-NCFAD/nf-ionampliseq
 ```
 
 ### Reproducibility
 
 It's a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
 
-First, go to the [peterk87/nf-ionampliseq releases page](https://github.com/peterk87/nf-ionampliseq/releases) and find the latest version number - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`.
+First, go to the [CFIA-NCFAD/nf-ionampliseq releases page](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases) and find the latest version number - numeric only (eg. `2.0.0`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 2.0.0`.
 
 This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future.
+
+## Pipeline parameters
+
+### Input/output options
+
+Define where the pipeline should find input data and save output data.
+
+#### `--input`
+
+- **Required**
+- Type: string
+
+Input BAM files from Ion Torrent Torrent Suite tmap.
+
+Use this to specify the location of your input BAM files. For example:
+
+```bash
+--input 'path/to/data/*.bam'
+```
+
+Please note the following requirements:
+
+1. The path must be enclosed in quotes
+2. The path must have at least one `*` wildcard character
+3. The BAM files must be produced by the Ion Torrent Torrent Suite software, specifically `tmap`
+
+#### `--rundir`
+
+- **Optional**
+- Type: string
+
+Ion Torrent sequencing run directory.
+
+Use this to specify the exported Ion Torrent sequencing run you wish to analyze. For example:
+
+```bash
+--rundir path/to/iontorrent/run
+```
+
+Please note the following requirements:
+
+1. The directory specified must contain BAM files matching the pattern `IonCode_*_rawlib.bam` and a `ion_params_00.json` file
+2. The BAM files must be produced by the Ion Torrent Torrent Suite software, specifically `tmap`
+
+#### `--sample_sheet`
+
+- **Optional**
+- Type: string
+
+Sample sheet table containing two fields: sample name, BAM file path.
+
+Use this option to specify the Ion Torrent sequencing samples that you wish to analyze. Please note the following requirements:
+
+1. The sample sheet table file may be one of the following formats: tab-delimited (TSV), CSV, ODS or XLSX
+2. The sample sheet table must contain a header row and 2 fields: the first field must contain the sample name; and the second field must contain the BAM file path or URL
+3. The BAM files must be produced by the Ion Torrent Torrent Suite software, specifically `tmap`
+
+#### `--panel`
+
+- **Optional**
+- Type: string
+- Default: null
+
+AmpliSeq panel ("fmd" or "csf").
+
+Specify a built-in AmpliSeq panel (reference genome sequences FASTA and detailed BED file of AmpliSeq amplicon coordinates) to perform analysis with.
+
+#### `--ref_fasta`
+
+- **Optional**
+- Type: string
+- Default: null
+
+Reference genome sequences FASTA for AmpliSeq panel.
+
+#### `--bed_file`
+
+- **Optional**
+- Type: string
+- Default: null
+
+Detailed BED file containing AmpliSeq amplicon coordinates and information.
+
+#### `--output_unmapped_reads`
+
+- **Optional**
+- Type: boolean
+- Default: false
+
+Whether or not to include unmapped reads in TMAP BAM output.
+
+#### `--blast_db`
+
+- **Optional**
+- Type: string
+- Default: null
+
+BLAST database prefix for sequence similarity searches (e.g. `nt` or `core_nt`).
+
+Path to a BLAST database (e.g. `nt` or `core_nt`).
+
+#### `--outdir`
+
+- **Optional**
+- Type: string
+- Default: `./results`
+
+The output directory where the results will be saved.
+
+### Mash Screen Parameters
+
+Mash screen parameters for determining top reference genome from MinHash kmer containment of reference hashes in sample read sequences.
+
+#### `--mash_k`
+
+- **Optional**
+- Type: integer
+- Default: 19
+
+Reference genome sequence Mash sketch k-mer size.
+
+#### `--mash_s`
+
+- **Optional**
+- Type: integer
+- Default: 10000
+
+Number of Mash sketches to create for each reference genome sequence.
+
+### TVC Parameters
+
+Thermo Fisher variant caller (TVC) parameters.
+
+#### `--tvc_error_motifs_dir`
+
+- **Optional**
+- Type: string
+- Default: `$baseDir/data/tvc-sse`
+
+Directory with Ion Torrent TVC error motifs.
+
+#### `--tvc_read_limit`
+
+- **Optional**
+- Type: integer
+- Default: 4000000
+
+TVC read limit.
+
+#### `--tvc_downsample_to_coverage`
+
+- **Optional**
+- Type: integer
+- Default: 8000
+
+TVC downsample to at most X coverage.
+
+#### `--tvc_min_mapping_qv`
+
+- **Optional**
+- Type: integer
+- Default: 0
+
+TVC min mapping quality value.
+
+#### `--tvc_read_snp_limit`
+
+- **Optional**
+- Type: integer
+- Default: 20
+
+TVC: do not use reads with number of SNPs above this limit.
+
+#### `--trim_primers`
+
+- **Optional**
+- Type: boolean
+- Default: true
+
+Enable TVC AmpliSeq primer trimming.
+
+### Variant Calling Options
+
+Various options for the variant calling branch of the pipeline.
+
+#### `--minor_allele_fraction`
+
+- **Optional**
+- Type: number
+- Default: 0.25
+
+Minor variant allele frequency/fraction.
+
+#### `--major_allele_fraction`
+
+- **Optional**
+- Type: number
+- Default: 0.75
+
+Major variant allele frequency/fraction. Only major variant alleles are used for generating a consensus sequence.
+
+#### `--low_coverage`
+
+- **Optional**
+- Type: integer
+- Default: 1
+
+Low coverage depth threshold. Consensus sequence positions with less than this coverage depth will be masked with the `low_cov_char` character.
+
+#### `--no_coverage`
+
+- **Optional**
+- Type: integer
+- Default: 0
+
+No coverage depth threshold. Positions at or below this coverage will be masked with the `no_cov_char` character.
+
+#### `--low_cov_char`
+
+- **Optional**
+- Type: string
+- Default: 'N'
+
+Mask low coverage positions in reference with this character.
+
+#### `--no_cov_char`
+
+- **Optional**
+- Type: string
+- Default: 'N'
+
+Mask no coverage positions in reference with this character.
+
+### Slurm Scheduler Options
+
+#### `--slurm_queue`
+
+- **Optional**
+- Type: string
+
+Slurm queue/partition to submit pipeline jobs to.
+
+#### `--slurm_queue_size`
+
+- **Optional**
+- Type: integer
+- Default: 100
+
+Slurm queue size. Max number of jobs to queue at once.
+
+### Max Job Request Options
+
+Set the top limit for requested resources for any single job.
+
+#### `--max_cpus`
+
+- **Optional**
+- Type: integer
+- Default: 4
+
+Maximum number of CPUs that can be requested for any single job.
+
+> **NOTE:** Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`
+
+#### `--max_memory`
+
+- **Optional**
+- Type: string
+- Default: `32.GB`
+
+Maximum amount of memory that can be requested for any single job.
+
+> **NOTE:** Use to set an upper-limit for the memory requirement for each process. Should be a string in the format integer-unit e.g. `--max_memory '8.GB'`
+
+#### `--max_time`
+
+- **Optional**
+- Type: string
+- Default: `240.h`
+
+Maximum amount of time that can be requested for any single job.
+
+> **NOTE:** Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`
+
+### Generic Options
+
+Less common options for the pipeline, typically set in a config file.
+
+#### `--help`
+
+- **Optional**
+- Type: boolean
+
+Display help text.
+
+#### `--publish_dir_mode`
+
+- **Optional**
+- Type: string
+- Default: `copy`
+
+Method used to save pipeline results to output directory.
+
+> **NOTE:** The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.
+
+#### `--monochrome_logs`
+
+- **Optional**
+- Type: boolean
+
+Do not use coloured log outputs.
+
+> **NOTE:** Set to disable colourful command line output and live life in monochrome.
+
+#### `--tracedir`
+
+- **Optional**
+- Type: string
+- Default: `${params.outdir}/pipeline_info`
+
+Directory to keep pipeline Nextflow logs and reports.
 
 ## Core Nextflow arguments
 
@@ -122,10 +391,10 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 
 * `docker`
   * A generic configuration profile to be used with [Docker](https://docker.com/)
-  * Pulls software from Docker Hub: [`peterk87/nf-ionampliseq`](https://hub.docker.com/r/peterk87/nf-ionampliseq/)
+  * Pulls software from Docker Hub: [`CFIA-NCFAD/nf-ionampliseq`](https://hub.docker.com/r/CFIA-NCFAD/nf-ionampliseq/)
 * `singularity`
   * A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
-  * Pulls software from Docker Hub: [`peterk87/nf-ionampliseq`](https://hub.docker.com/r/peterk87/nf-ionampliseq/)
+  * Pulls software from Docker Hub: [`CFIA-NCFAD/nf-ionampliseq`](https://hub.docker.com/r/CFIA-NCFAD/nf-ionampliseq/)
 * `conda`
   * Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker or Singularity.
   * A generic configuration profile to be used with [Conda](https://conda.io/docs/)
@@ -160,13 +429,6 @@ process {
 
 See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information.
 
-<!-- TODO: uncomment when pipeline added to nf-core
-
-If you are likely to be running `nf-core` pipelines regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter (see definition below). You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
-
-If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack) on the [`#configs` channel](https://nfcore.slack.com/channels/configs).
--->
-
 ### Running in the background
 
 Nextflow handles job submissions and supervises the running jobs. The Nextflow process must run until the pipeline is finished.
@@ -184,3 +446,10 @@ We recommend adding the following line to your environment to limit this (typica
 ```bash
 NXF_OPTS='-Xms1g -Xmx4g'
 ```
+
+<!-- External links and references -->
+
+[CSFV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Undef&id=3052625&lvl=3&keep=1&srchmode=1&unlock
+[FMDV]: https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=12110&lvl=3&lin=f&keep=1&srchmode=1&unlock
+[TMAP]: https://github.com/iontorrent/TS/
+[TVC]: http://updates.iontorrent.com/tvc_standalone/
