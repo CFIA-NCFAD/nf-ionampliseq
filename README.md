@@ -2,7 +2,7 @@
 
 Read mapping, variant calling and consensus sequence generation workflow for Ion Torrent Ampliseq sequence data of [FMDV] and [CSFV].
 
-[![DOI](https://zenodo.org/badge/DOI/10.XXXX/zenodo.XXXX.svg)](https://doi.org/10.XXXX/zenodo.XXXX)
+[![DOI](https://zenodo.org/badge/362215486.svg)](https://doi.org/10.5281/zenodo.16821383)
 [![CI](https://github.com/CFIA-NCFAD/nf-ionampliseq/workflows/CI/badge.svg)](https://github.com/CFIA-NCFAD/nf-ionampliseq/actions)
 
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A525.04.6-brightgreen.svg)](https://www.nextflow.io/)
