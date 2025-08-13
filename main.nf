@@ -313,7 +313,8 @@ workflow {
   BCFTOOLS_CONSENSUS(
     BCFTOOLS_FILTER.out.vcf.join(MOSDEPTH_GENOME.out.bedgz),
     params.low_coverage,
-    params.major_allele_fraction
+    params.major_allele_fraction,
+    params.filter_frameshift_variants
   )
   ch_versions = ch_versions.mix(BCFTOOLS_CONSENSUS.out.versions.first().ifEmpty(null))
 

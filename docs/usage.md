@@ -249,6 +249,13 @@ Minor variant allele frequency/fraction.
 
 Major variant allele frequency/fraction. Only major variant alleles are used for generating a consensus sequence.
 
+#### `--filter_frameshift_variants`
+
+- Type: boolean
+- Default: false
+
+Filter any variants from TVC VCF that may be frameshift mutations (e.g. REF='A', ALT='AG'). This may be too aggressive for Ion Torrent, but usually necessary for ONT data. Inframe indels are preserved. This option may affect the consensus sequence.
+
 #### `--low_coverage`
 
 - **Optional**

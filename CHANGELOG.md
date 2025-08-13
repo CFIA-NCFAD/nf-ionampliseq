@@ -3,6 +3,23 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [[2.0.1](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.0.1))] - 2025-08-13
+
+This release makes the potential frameshift introducing filter for variant calling results optional and off by default.
+
+### Added
+
+- [config] `filter_frameshift_variants` pipeline parameter (default: `false`) for optionally filtering potential frameshift introducing variants from the TVC variant calling results prior to consensus sequence generation.
+
+### Changes
+
+- [docs] Updated `README.md` and citation information.
+
+### Fixed
+
+- [fix] Turned off potential frameshift variant filtering leading to inaccurate consensus sequences.
+- [fix] Removed git diff action from `docker.yml` since features are unsupported by GHA.
+
 ## [[2.0.0](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.0.0))] - 2025-08-12
 
 This release modernizes nf-ionampliseq to DSL-2 standards with enhanced BLAST analysis capabilities, improved containerization, and better resource management. Key additions include BLAST database integration, enhanced variant calling options, and comprehensive process version tracking.
