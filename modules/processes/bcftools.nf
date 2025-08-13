@@ -13,6 +13,7 @@ process BCFTOOLS_FILTER {
   tuple val(sample), path(fasta), path(vcf)
   val(major_allele_fraction)
   val(minor_allele_fraction)
+  val(filter_frameshift_variants)
 
   output:
   tuple val(sample), path(fasta), path(bcftools_filt_vcf), emit: vcf
@@ -20,6 +21,7 @@ process BCFTOOLS_FILTER {
 
   script:
   bcftools_filt_vcf = "${sample}.bcftools_filt.vcf"
+  def bcftools_frameshift_filter = filter_frameshift_variants ? "TYPE != 'SNP' && ( (STRLEN(ALT) - STRLEN(REF)) % 3 ) != 0 || TYPE != 'SNP' && ( (STRLEN(ALT) - STRLEN(REF)) % 3 == 0 && " : ""
   """
   bcftools norm \\
     --check-ref w \\
@@ -76,9 +78,7 @@ process BCFTOOLS_FILTER {
 
   bcftools filter \\
     setGT.final.vcf \\
-    -e "TYPE != 'SNP' && ( (STRLEN(ALT) - STRLEN(REF)) % 3 ) != 0 
-    || TYPE != 'SNP' && ( (STRLEN(ALT) - STRLEN(REF)) % 3 == 0 
-    && FMT/VAF < ${minor_allele_fraction})" \\
+    -e "${bcftools_frameshift_filter} FMT/VAF < ${minor_allele_fraction})" \\
     -Ov \\
     -o $bcftools_filt_vcf 
 
