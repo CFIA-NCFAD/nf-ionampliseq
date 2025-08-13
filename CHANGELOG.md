@@ -14,6 +14,7 @@ This release makes the potential frameshift introducing filter for variant calli
 ### Changes
 
 - [docs] Updated `README.md` and citation information.
+- [update] Use TVC Flow Evaluator calculated allele fraction (AF) for computing GT in Bcftools filtered VCF instead of observation based counts.
 
 ### Fixed
 

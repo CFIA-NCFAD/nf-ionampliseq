@@ -30,57 +30,32 @@ process BCFTOOLS_FILTER {
     $vcf \\
     > norm.vcf
 
-  # TSV with CHROM,POS,REF,ALT,AD
-  bcftools query -f '%CHROM\\t%POS\\t%REF\\t%ALT\\t[%RO,%AO]\\n' norm.vcf > ad.tsv
-
-  # header file defining the AD FORMAT field
-  cat <<-END_AD_HEADER > ad.hdr 
-  ##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths for the ref and alt alleles">
-  END_AD_HEADER
-
-  # bgzip and tabix index the TSV
-  # Must be CHROM, POS, REF, ALT, AD (no FORMAT/ prefix here)
-  bgzip -c ad.tsv > ad.tsv.gz
-  tabix -s1 -b2 -e2 ad.tsv.gz
-
-  # annotate the VCF
-  bcftools annotate \
-    -a ad.tsv.gz \
-    -c CHROM,POS,REF,ALT,FMT/AD \
-    -h ad.hdr \
-    norm.vcf \
-    > with_ad.vcf
-
-  bcftools +fill-tags \\
-    with_ad.vcf \\
-    -Ov \\
-    -o filled.vcf \\
-    -- -t all
-
+  # setGT plugin is used to set the genotype field (GT) based on the TVC Flow Evaluator calculated allele frequency (AF)
   bcftools +setGT \\
-    filled.vcf \\
+    norm.vcf \\
     -Ov \\
     -o setGT.major.vcf \\
-    -- -t q -n 'c:1/1' -i 'FMT/VAF >= ${major_allele_fraction}'
+    -- -t q -n 'c:1/1' -i 'FMT/AF >= ${major_allele_fraction}'
 
   bcftools +setGT \\
     setGT.major.vcf \\
     -Ov \\
     -o setGT.minor.vcf \\
-    -- -t q  -n 'c:0/1' -i 'FMT/VAF >= ${minor_allele_fraction} && FMT/VAF < ${major_allele_fraction}'
+    -- -t q  -n 'c:0/1' -i 'FMT/AF >= ${minor_allele_fraction} && FMT/AF < ${major_allele_fraction}'
 
   bcftools +setGT \\
     setGT.minor.vcf \\
     -Ov \\
     -o setGT.final.vcf \\
-    -- -t q -n 'c:0/0' -i 'FMT/VAF < ${minor_allele_fraction}'
+    -- -t q -n 'c:0/0' -i 'FMT/AF < ${minor_allele_fraction}'
 
+  # Filter out frameshift variants if specified; may be too strict for Ion Torrent data since TVC should account for frameshifts in its error modeling.
   if [${filter_frameshift_variants} -eq true]; then
     bcftools filter \\
       setGT.final.vcf \\
       -e "TYPE != 'SNP' && ( (STRLEN(ALT) - STRLEN(REF)) % 3 ) != 0 
       || TYPE != 'SNP' && ( (STRLEN(ALT) - STRLEN(REF)) % 3 == 0
-      && FMT/VAF < ${minor_allele_fraction})" \\
+      && FMT/AF < ${minor_allele_fraction})" \\
       -Ov \\
       -o $bcftools_filt_vcf 
   else
@@ -125,7 +100,7 @@ process BCFTOOLS_CONSENSUS {
   bcftools filter \\
     -Oz \\
     -o no_low_af_indels.vcf.gz \\
-    -e "TYPE != 'SNP' && FMT/VAF < ${major_allele_fraction}" \\
+    -e "TYPE != 'SNP' && FMT/AF < ${major_allele_fraction}" \\
     $vcf
 
   tabix no_low_af_indels.vcf.gz
