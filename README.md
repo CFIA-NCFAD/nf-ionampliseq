@@ -2,7 +2,7 @@
 
 Read mapping, variant calling and consensus sequence generation workflow for Ion Torrent Ampliseq sequence data of [FMDV] and [CSFV].
 
-[![DOI](https://zenodo.org/badge/DOI/10.XXXX/zenodo.XXXX.svg)](https://doi.org/10.XXXX/zenodo.XXXX)
+[![DOI](https://zenodo.org/badge/362215486.svg)](https://doi.org/10.5281/zenodo.16821383)
 [![CI](https://github.com/CFIA-NCFAD/nf-ionampliseq/workflows/CI/badge.svg)](https://github.com/CFIA-NCFAD/nf-ionampliseq/actions)
 
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A525.04.6-brightgreen.svg)](https://www.nextflow.io/)
@@ -107,8 +107,13 @@ The development of this pipeline tries to follow the guidelines and best-practic
 
 ## Citation
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi. -->
-<!-- If you use  CFIA-NCFAD/nf-ionampliseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+If you use  CFIA-NCFAD/nf-ionampliseq for your analysis, please cite it using the following doi: [10.5281/zenodo.16821383](https://doi.org/10.5281/zenodo.16821383)
+
+```text
+Kruczkiewicz, P. and Lung, O. (2025) “CFIA-NCFAD/nf-ionampliseq: 2.0.1”. Zenodo. doi:10.5281/zenodo.16821383.
+```
+
+See [citations.bib](citations.bib) for tool and software citation information for the software and bioinformatics tools that CFIA-NCFAD/nf-ionampliseq uses.
 
 You can cite the `nf-core` publication as follows:
 

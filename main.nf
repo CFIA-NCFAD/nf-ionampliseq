@@ -85,15 +85,6 @@ if (workflow.profile.contains('awsbatch')) {
     summary['AWS CLI']      = params.awscli
 }
 summary['Config Profile'] = workflow.profile
-if (params.config_profile_description) {
-    summary['Config Profile Description'] = params.config_profile_description
-}
-if (params.config_profile_contact) {
-    summary['Config Profile Contact']     = params.config_profile_contact
-}
-if (params.config_profile_url) {
-    summary['Config Profile URL']         = params.config_profile_url
-}
 summary['Config Files'] = workflow.configFiles.join(', ')
 if (params.email || params.email_on_fail) {
     summary['E-mail Address']    = params.email
@@ -252,17 +243,8 @@ workflow {
   MASH_SKETCH(ch_ref_fasta.map { it[1] }.unique())
   ch_versions = ch_versions.mix(MASH_SKETCH.out.versions.first().ifEmpty(null))
 
-  if (params.debug) {
-    ch_ref_fasta.view { "ch_ref_fasta: ${it}" }
-  }
-
   ch_ref_fasta_to_mash_sketch = ch_ref_fasta.combine(MASH_SKETCH.out.sketch)
-    .view { params.debug ? "ch_ref_fasta combine MASH_SKETCH: $it" : ''}
     .map { [it[0], it[1], it[3]] }
-  
-  if (params.debug) {
-    ch_ref_fasta_to_mash_sketch.view { "ch_ref_fasta_to_mash_sketch: $it" }
-  }
 
   MASH_SCREEN(SAMTOOLS_FASTQ.out.fastq_gz.join(ch_ref_fasta_to_mash_sketch))
   ch_versions = ch_versions.mix(MASH_SCREEN.out.versions.first().ifEmpty(null))
@@ -301,7 +283,8 @@ workflow {
   BCFTOOLS_FILTER(
     TVC.out.vcf.map { [it[0], it[3], it[2]] },
     params.major_allele_fraction,
-    params.minor_allele_fraction
+    params.minor_allele_fraction,
+    params.filter_frameshift_variants
   )
   ch_versions = ch_versions.mix(BCFTOOLS_FILTER.out.versions.first().ifEmpty(null))
 
