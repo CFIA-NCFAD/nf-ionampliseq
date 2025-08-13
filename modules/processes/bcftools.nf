@@ -21,7 +21,6 @@ process BCFTOOLS_FILTER {
 
   script:
   bcftools_filt_vcf = "${sample}.bcftools_filt.vcf"
-  def bcftools_frameshift_filter = filter_frameshift_variants ? "TYPE != 'SNP' && ( (STRLEN(ALT) - STRLEN(REF)) % 3 ) != 0 || TYPE != 'SNP' && ( (STRLEN(ALT) - STRLEN(REF)) % 3 == 0 && FMT/VAF < ${minor_allele_fraction})" : ""
   """
   bcftools norm \\
     --check-ref w \\
@@ -76,11 +75,17 @@ process BCFTOOLS_FILTER {
     -o setGT.final.vcf \\
     -- -t q -n 'c:0/0' -i 'FMT/VAF < ${minor_allele_fraction}'
 
-  bcftools filter \\
-    setGT.final.vcf \\
-    -e "${bcftools_frameshift_filter}" \\
-    -Ov \\
-    -o $bcftools_filt_vcf 
+  if [${filter_frameshift_variants} -eq true]; then
+    bcftools filter \\
+      setGT.final.vcf \\
+      -e "TYPE != 'SNP' && ( (STRLEN(ALT) - STRLEN(REF)) % 3 ) != 0 
+      || TYPE != 'SNP' && ( (STRLEN(ALT) - STRLEN(REF)) % 3 == 0
+      && FMT/VAF < ${minor_allele_fraction})" \\
+      -Ov \\
+      -o $bcftools_filt_vcf 
+  else
+    cp setGT.final.vcf $bcftools_filt_vcf 
+  fi
 
   cat <<-END_VERSIONS > versions.yml
   "${task.process}":
