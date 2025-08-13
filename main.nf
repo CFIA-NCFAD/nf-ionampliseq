@@ -301,7 +301,8 @@ workflow {
   BCFTOOLS_FILTER(
     TVC.out.vcf.map { [it[0], it[3], it[2]] },
     params.major_allele_fraction,
-    params.minor_allele_fraction
+    params.minor_allele_fraction,
+    params.filter_frameshift_variants
   )
   ch_versions = ch_versions.mix(BCFTOOLS_FILTER.out.versions.first().ifEmpty(null))
 
@@ -313,8 +314,7 @@ workflow {
   BCFTOOLS_CONSENSUS(
     BCFTOOLS_FILTER.out.vcf.join(MOSDEPTH_GENOME.out.bedgz),
     params.low_coverage,
-    params.major_allele_fraction,
-    params.filter_frameshift_variants
+    params.major_allele_fraction
   )
   ch_versions = ch_versions.mix(BCFTOOLS_CONSENSUS.out.versions.first().ifEmpty(null))
 
