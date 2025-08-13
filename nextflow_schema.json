@@ -145,6 +145,11 @@
                     "minimum": 0,
                     "default": 10,
                     "description": "Low coverage depth threshold. Consensus sequence positions with less than this coverage depth will be masked with `N`."
+                },
+                "filter_frameshift_variants": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Filter any variants from TVC VCF that may be frameshift mutations (e.g. REF='A', ALT='AG'). This may be too aggressive for Ion Torrent, but usually necessary for ONT data. Inframe indels are preserved. This option may affect the consensus sequence."
                 }
             },
             "fa_icon": "fas fa-dna"
