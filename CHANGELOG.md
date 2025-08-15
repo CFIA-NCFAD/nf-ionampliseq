@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [[2.1.0](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.1.0))] - 2025-08-15
 
 ### Added
+
 - [test] [nf-test](https://github.com/askimed/nf-test) for `BCFTOOLS_FILTER` and `BCFTOOLS_CONSENSUS` to ensure that updated multiallelic variant handling produces expected results including test data.
 - [ci] nf-test job to `ci.yml`
 - [feat] Better support for multiallelic variant handling in `BCFTOOLS_FILTER` using more comprehensive logic using Bcftools filter statements and awk. Updated `BCFTOOLS_CONSENSUS` to properly handle new multiallelic variant handling.
