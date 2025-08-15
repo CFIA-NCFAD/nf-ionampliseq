@@ -1,0 +1,51 @@
+nextflow_process {
+  name "Test BCFTOOLS_CONSENSUS"
+  script "modules/processes/bcftools.nf"
+  process "BCFTOOLS_CONSENSUS"
+  config "nextflow.config"
+
+  test("Should generate a consensus sequence from a BCFTOOLS_FILTERed VCF file") {
+    when {
+      process {
+        """
+        input[0] = Channel.of([
+          'Sample1',
+          file("$projectDir/tests/data/fasta/AY775178.fasta"),
+          file("$projectDir/tests/data/vcf/Sample1.bcftools_filt.vcf"),
+          file("$projectDir/tests/data/mosdepth/Sample1.per-base.bed.gz")
+        ])
+        input[1] = Channel.of(10)
+        """
+      }
+    }
+    then {
+      assert process.success
+      assert process.trace.tasks().size() == 1
+      
+      def lines = path(process.out.fasta.get(0)[1]).toFile().readLines()
+      
+      // Test that the consensus sequence is generated
+      assert lines.size() > 0
+      assert lines.contains(">Sample1")
+      // parse nucleotide sequence from lines starting after line starting with ">", strip whitespace
+      def seq = new StringBuilder()
+      lines.each { line ->
+        if (!line.startsWith(">")) {
+          seq.append(line.trim())
+        }
+      }
+      assert seq.length() > 12000
+      // the consensus should have 61 N at start and 103 N at end of the sequence
+      assert seq.substring(0, 1000).count("N") == 61
+      assert seq.substring(seq.length() - 1000).count("N") == 103
+      
+      // Check the hash/checksum of the consensus output file
+      def consensusFile = path(process.out.fasta.get(0)[1]).toFile()
+      def fileHash = consensusFile.bytes.md5()
+      // md5sum of tests/data/fasta/Sample1.bcftools.consensus.fasta
+      def expectedHash = path("$projectDir/tests/data/fasta/Sample1.bcftools.consensus.fasta").toFile().bytes.md5()
+      assert fileHash == expectedHash, "Consensus file hash mismatch. Expected: $expectedHash, Got: $fileHash"
+      
+    }
+  }
+}

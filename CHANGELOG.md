@@ -3,6 +3,18 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [[2.1.0](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.1.0))] - 2025-08-15
+
+### Added
+- [test] [nf-test](https://github.com/askimed/nf-test) for `BCFTOOLS_FILTER` and `BCFTOOLS_CONSENSUS` to ensure that updated multiallelic variant handling produces expected results including test data.
+- [ci] nf-test job to `ci.yml`
+- [feat] Better support for multiallelic variant handling in `BCFTOOLS_FILTER` using more comprehensive logic using Bcftools filter statements and awk. Updated `BCFTOOLS_CONSENSUS` to properly handle new multiallelic variant handling.
+
+### Changes
+
+- [docs] Updated `--help` message to use `nextflow_schema.json`.
+- [refactor] Moved `workflow.onComplete` code from `main.nf` to `lib/helpers.nf`
+
 ## [[2.0.1](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.0.1))] - 2025-08-13
 
 This release makes the potential frameshift introducing filter for variant calling results optional and off by default.

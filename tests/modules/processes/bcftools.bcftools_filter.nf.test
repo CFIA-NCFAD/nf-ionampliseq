@@ -1,0 +1,91 @@
+nextflow_process {
+  name "Test BCFTOOLS_FILTER"
+  script "modules/processes/bcftools.nf"
+  process "BCFTOOLS_FILTER"
+  config "nextflow.config"
+
+  test("Should set genotype (GT) for low AF variants, select the appropriate multi-allelic variants and optionally remove frameshift variants using Flow Evaluator information") {
+    when {
+      process {
+        """
+        input[0] = Channel.of([
+          'Sample1',
+          file("$projectDir/tests/data/fasta/AY775178.fasta"),
+          file("$projectDir/tests/data/vcf/Sample1-small_variants.vcf")
+        ])
+        input[1] = Channel.of(0.75)
+        input[2] = Channel.of(0.25)
+        input[3] = false
+        """
+      }
+    }
+    then {
+      assert process.success
+      assert process.trace.tasks().size() == 1
+      
+      def lines = path(process.out.vcf.get(0)[2]).toFile().readLines()
+      
+      // Test that the specific variant mentioned in the original test is NOT present
+      // (this was the original assertion that should still work)
+      assert !lines.contains([
+        "AY775178",
+        "1684",
+        ".",
+        "GTGC",
+        "GT"
+      ].join("\t"))
+      
+      // Test that FLOW_GT INFO field is properly set for all variants
+      def flowGtLines = lines.findAll { it.contains("FLOW_GT=") }
+      assert flowGtLines.size() > 0
+      
+      // Test that SELECTED flag is present for all variants
+      def selectedLines = lines.findAll { it.contains("SELECTED") }
+      assert selectedLines.size() > 0
+      
+      // Test specific genotype assignments based on FLOW_GT
+      // Position 107: FLOW_GT=1/1 should result in GT=1/1
+      def pos107 = lines.find { it.startsWith("AY775178\t107\t") }
+      assert pos107 != null
+      assert pos107.contains("FLOW_GT=1/1")
+      assert pos107.contains("\t1/1:")
+      
+      // Position 934: FLOW_GT=1/2 should result in GT=1/. (multiallelic ambiguity)
+      def pos934 = lines.findAll { it.startsWith("AY775178\t934\t") }
+      assert pos934.size() == 2  // Should have two lines for the two ALT alleles
+      pos934.each { line ->
+        assert line.contains("FLOW_GT=1/2")
+        assert line.contains("FLOW_ACTION=DUAL_ALT_AMBIGUOUS")
+        assert line.contains("SELECTED")
+      }
+      
+      // Position 1684: FLOW_GT=1/1 should result in GT=1/1
+      def pos1684 = lines.find { it.startsWith("AY775178\t1684\t") }
+      assert pos1684 != null
+      assert pos1684.contains("FLOW_GT=1/1")
+      assert pos1684.contains("FLOW_ACTION=SINGLE_HOM")
+      assert pos1684.contains("\t1/1:")
+      
+      // Test that all variants have proper GT field in FORMAT column
+      def formatLines = lines.findAll { it.contains("\tGT:") }
+      assert formatLines.size() > 0
+      
+      // Test that FLOW_AF field is present and properly formatted
+      def flowAfLines = lines.findAll { it.contains("FLOW_AF=") }
+      assert flowAfLines.size() > 0
+      
+      // Test that FLOW_ACTION field is present and properly set
+      def flowActionLines = lines.findAll { it.contains("FLOW_ACTION=") }
+      assert flowActionLines.size() > 0
+      
+      // Verify the expected actions are present
+      def actions = flowActionLines.collect { line ->
+        def match = line =~ /FLOW_ACTION=([^;]+)/
+        match.find() ? match[0][1] : null
+      }.findAll { it != null }
+      
+      assert actions.contains("SINGLE_HOM")
+      assert actions.contains("DUAL_ALT_AMBIGUOUS")
+    }
+  }
+}
