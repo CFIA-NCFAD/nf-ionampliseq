@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/CFIA-NCFAD/nf-ionampliseq/master/nextflow_schema.json",
     "title": "CFIA-NCFAD/nf-ionampliseq pipeline parameters",
-    "description": "Ion Torrent Ampliseq workflow for analysis of FMDV, CSFV, Zika, Ebola amplicon sequence data",
+    "description": "Ion Torrent Ampliseq workflow for analysis of FMDV and CSFV amplicon sequence data",
     "type": "object",
     "definitions": {
         "input_output_options": {

@@ -1,6 +1,6 @@
-# peterk87/nf-ionampliseq: Documentation
+# CFIA-NCFAD/nf-ionampliseq: Documentation
 
-The peterk87/nf-ionampliseq documentation is split into the following pages:
+The CFIA-NCFAD/nf-ionampliseq documentation is split into the following pages:
 
 <!-- TODO nf-core: If you write more documentation pages, add them to the docs index page here -->
 
