@@ -45,7 +45,11 @@ process BCFTOOLS_FILTER {
     }
     
     # Reference AF from Flow Evaluator
-    ref_af = (fro + 0) / (fdp + 0);
+    if (fdp > 0) {
+        ref_af = (fro + 0) / (fdp + 0);
+    } else {
+        ref_af = 0;
+    }
     
     printf "# Site %s:%s - Total AF: %.3f, Ref AF: %.3f, FDP: %d\\n", chrom, pos, total_af, ref_af, fdp > "/dev/stderr";
     
@@ -75,9 +79,9 @@ process BCFTOOLS_FILTER {
       if(!is_indel || current_af >= maj) {
         if(keep_alts == "") {
           keep_alts = current_alt;
-          keep_afs = current_af "";
-          keep_faos = current_fao "";
-          keep_indices = i "";
+          keep_afs = current_af + "";
+          keep_faos = current_fao + "";
+          keep_indices = i + "";
         } else {
           keep_alts = keep_alts "," current_alt;
           keep_afs = keep_afs "," current_af;
@@ -98,7 +102,7 @@ process BCFTOOLS_FILTER {
       final_gt = "0/0";
       action = "REF_ONLY";
       out_alts = ref;
-      out_afs = ref_af "";
+      out_afs = ref_af + "";
     } else if(n_kept == 1) {
         # Single alternate
         single_af = (split(keep_afs, af_arr, ","), af_arr[1] + 0);
@@ -125,12 +129,12 @@ process BCFTOOLS_FILTER {
             if(af1 >= af2) {
                 final_gt = "0/1";
                 out_alts = (split(keep_alts, alt_arr, ","), alt_arr[1]);
-                out_afs = af1 "";
+                out_afs = af1 + "";
                 action = "DUAL_TO_BEST";
             } else {
                 final_gt = "0/1"; 
                 out_alts = (split(keep_alts, alt_arr, ","), alt_arr[2]);
-                out_afs = af2 "";
+                out_afs = af2 + "";
                 action = "DUAL_TO_BEST";
             }
         }
