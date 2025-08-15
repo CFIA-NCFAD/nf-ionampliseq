@@ -9,25 +9,25 @@ def helpMessage() {
   c_reset = params.monochrome_logs ? '' : "\033[0m";
   c_bold = params.monochrome_logs ? '' : "\033[1m";
   c_dim = params.monochrome_logs ? '' : "\033[2m";
-  c_block = params.monochrome_logs ? '' : "\033[3m";
-  c_ul = params.monochrome_logs ? '' : "\033[4m";
-  c_black = params.monochrome_logs ? '' : "\033[0;30m";
   c_red = params.monochrome_logs ? '' : "\033[0;31m";
   c_green = params.monochrome_logs ? '' : "\033[0;32m";
-  c_yellow = params.monochrome_logs ? '' : "\033[0;33m";
   c_blue = params.monochrome_logs ? '' : "\033[0;34m";
   c_purple = params.monochrome_logs ? '' : "\033[0;35m";
   c_cyan = params.monochrome_logs ? '' : "\033[0;36m";
-  c_white = params.monochrome_logs ? '' : "\033[0;37m";
-  c_bul = params.monochrome_logs ? '' : c_bold + c_ul;
+  c_yellow = params.monochrome_logs ? '' : "\033[0;33m";
+  
+  // Read schema JSON for parameter information
+  def schemaFile = new File("${workflow.projectDir}/nextflow_schema.json")
+  def schema = new groovy.json.JsonSlurper().parseText(schemaFile.text)
+  
   log.info"""
   =${c_dim}=================================================================${c_reset}
   ${c_blue+c_bold}${workflow.manifest.name}${c_reset}   ~  version ${c_purple}${workflow.manifest.version}${c_reset}
   ${c_dim}==================================================================${c_reset}
 
-    ${c_ul}Git info:${c_reset} $workflow.repository - $workflow.revision [$workflow.commitId]
+    ${c_bold}Git info:${c_reset} $workflow.repository - $workflow.revision [$workflow.commitId]
 
-  ${c_bul}Usage:${c_reset}
+  ${c_bold}Usage:${c_reset}
 
   The typical command for running the pipeline is as follows:
   
@@ -36,30 +36,38 @@ def helpMessage() {
       ${c_green}--outdir ${params.outdir}${c_reset} \\
       -profile docker # Recommended to run workflow with either Docker or Singularity enabled
 
-  ${c_bul}Input Options:${c_reset}
-    ${c_red}--input${c_reset}           Path to BAM files (e.g. 'ion-torrent/*.bam'). Sample names and AmpliSeq panel will be inferred from the BAM file headers. [Recommended run mode]
-    --rundir          Path to Ion Torrent sequencing run containing 'IonCode_*_rawlib.bam' and 'ion_params_00.json' output files.
-    --sample_sheet    Sample sheet CSV, TSV, ODS or XLSX file.
-    --panel           AmpliSeq panel to run. Choice of 'fmd' or 'csf'. Only needs to be specified with '--sample_sheet'.
-    --ref_fasta       Custom AmpliSeq panel reference sequences FASTA.
-    --bed_file        Custom AmpliSeq detailed BED file accompanying '--ref_fasta'.
+  ${c_bold}Parameters:${c_reset}
+"""
 
-  Mash Screen Options:
-    --mash_k          Mash sketch kmer size (default: ${params.mash_k})
-    --mash_s          Mash sketch number of sketch hashes (default: ${params.mash_s})
-  
-  TVC Options:
-    --tvc_error_motifs_dir        Directory with Ion Torrent TVC error motifs (default: ${params.tvc_error_motifs_dir})
-    --tvc_read_limit              TVC read limit (default: $params.tvc_read_limit)
-    --tvc_downsample_to_coverage  TVC downsample to at most X coverage (default: X=$params.tvc_downsample_to_coverage)
-    --tvc_min_mapping_qv          TVC min mapping quality value (default: $params.tvc_min_mapping_qv)
-    --tvc_read_snp_limit          TVC: do not use reads with number of SNPs about this (default: $params.tvc_read_snp_limit)
+  // Generate help text from schema definitions
+  schema.definitions.each { defName, defObj ->
+    if (defName != "institutional_config_options" && defName != "max_job_request_options") {
+      log.info "  ${c_bold}${defObj.title}:${c_reset}"
+      log.info "    ${defObj.description}"
+      log.info ""
+      
+      defObj.properties?.each { paramName, paramObj ->
+        if (!paramObj.hidden) {
+          def defaultValue = paramObj.default != null ? " (default: ${paramObj.default})" : ""
+          log.info "    ${c_red}--${paramName}${c_reset}${defaultValue}"
+          log.info "      ${paramObj.description}"
+          if (paramObj.help_text) {
+            // Convert markdown to terminal formatting
+            def formattedHelpText = paramObj.help_text
+              .replaceAll(/```bash\n([^`]+)```/, "${c_cyan}\$1${c_reset}")  // Code blocks in cyan
+              .replaceAll(/```\n([^`]+)```/, "${c_cyan}\$1${c_reset}")      // Code blocks in cyan
+              .replaceAll(/`([^`]+)`/, "${c_yellow}\$1${c_reset}")          // Inline code in yellow
+              .replaceAll(/\*\*([^*]+)\*\*/, "${c_bold}\$1${c_reset}")     // Bold text
+              .replaceAll(/\*([^*]+)\*/, "${c_dim}\$1${c_reset}")           // Italic text
+            log.info "      ${formattedHelpText}"
+          }
+          log.info ""
+        }
+      }
+    }
+  }
 
-  ${c_bul}Cluster Options:${c_reset}
-    --slurm_queue       Name of SLURM queue to run workflow on. Must be specified with ${c_dim}-profile slurm${c_reset}.
-    --slurm_queue_size  Maximum number of Slurm jobs to queue (default: ${params.slurm_queue_size})
-
-  ${c_bul}Other Options:${c_reset}
+  log.info """  ${c_bold}Other Options:${c_reset}
     ${c_green}--outdir${c_reset}          The output directory where the results will be saved
                       (default: ${c_green}${params.outdir}${c_reset})
     -w/--work-dir     The temporary directory where intermediate data will be 
@@ -157,4 +165,118 @@ def check_rundir(rundir) {
   log.info "Reference determined to be '${ref_panel}'"
   log.info "Found ${samples.size()} barcoded samples"
   return [samples, ref_panel]
+}
+
+def onComplete(workflow, summary, custom_runName) {
+    // Set up the e-mail variables
+    def subject = "[CFIA-NCFAD/nf-ionampliseq] Successful: $workflow.runName"
+    if (!workflow.success) {
+        subject = "[CFIA-NCFAD/nf-ionampliseq] FAILED: $workflow.runName"
+    }
+    def email_fields = [:]
+    email_fields['version'] = workflow.manifest.version
+    email_fields['runName'] = custom_runName ?: workflow.runName
+    email_fields['success'] = workflow.success
+    email_fields['dateComplete'] = workflow.complete
+    email_fields['duration'] = workflow.duration
+    email_fields['exitStatus'] = workflow.exitStatus
+    email_fields['errorMessage'] = (workflow.errorMessage ?: 'None')
+    email_fields['errorReport'] = (workflow.errorReport ?: 'None')
+    email_fields['commandLine'] = workflow.commandLine
+    email_fields['projectDir'] = workflow.projectDir
+    email_fields['summary'] = summary
+    email_fields['summary']['Date Started'] = workflow.start
+    email_fields['summary']['Date Completed'] = workflow.complete
+    email_fields['summary']['Pipeline script file path'] = workflow.scriptFile
+    email_fields['summary']['Pipeline script hash ID'] = workflow.scriptId
+    if (workflow.repository) email_fields['summary']['Pipeline repository Git URL'] = workflow.repository
+    if (workflow.commitId) email_fields['summary']['Pipeline repository Git Commit'] = workflow.commitId
+    if (workflow.revision) email_fields['summary']['Pipeline Git branch/tag'] = workflow.revision
+    email_fields['summary']['Nextflow Version'] = workflow.nextflow.version
+    email_fields['summary']['Nextflow Build'] = workflow.nextflow.build
+    email_fields['summary']['Nextflow Compile Timestamp'] = workflow.nextflow.timestamp
+
+    // TODO nf-core: If not using MultiQC, strip out this code (including params.max_multiqc_email_size)
+    // On success try attach the multiqc report
+    def mqc_report = null
+    try {
+        if (workflow.success) {
+            mqc_report = ch_multiqc_report.getVal()
+            if (mqc_report.getClass() == ArrayList) {
+                log.warn "[CFIA-NCFAD/nf-ionampliseq] Found multiple reports from process 'multiqc', will use only one"
+                mqc_report = mqc_report[0]
+            }
+        }
+    } catch (all) {
+        log.warn "[CFIA-NCFAD/nf-ionampliseq] Could not attach MultiQC report to summary email"
+    }
+
+    // Check if we are only sending emails on failure
+    email_address = params.email
+    if (!params.email && params.email_on_fail && !workflow.success) {
+        email_address = params.email_on_fail
+    }
+
+    // Render the TXT template
+    def engine = new groovy.text.GStringTemplateEngine()
+    def tf = new File("${workflow.projectDir}/assets/email_template.txt")
+    def txt_template = engine.createTemplate(tf).make(email_fields)
+    def email_txt = txt_template.toString()
+
+    // Render the HTML template
+    def hf = new File("${workflow.projectDir}/assets/email_template.html")
+    def html_template = engine.createTemplate(hf).make(email_fields)
+    def email_html = html_template.toString()
+
+    // Render the sendmail template
+    def smail_fields = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, baseDir: "${workflow.projectDir}", mqcFile: mqc_report, mqcMaxSize: params.max_multiqc_email_size.toBytes() ]
+    def sf = new File("${workflow.projectDir}/assets/sendmail_template.txt")
+    def sendmail_template = engine.createTemplate(sf).make(smail_fields)
+    def sendmail_html = sendmail_template.toString()
+
+    // Send the HTML e-mail
+    if (email_address) {
+        try {
+            if (params.plaintext_email) { throw GroovyException('Send plaintext e-mail, not HTML') }
+            // Try to send HTML e-mail using sendmail
+            [ 'sendmail', '-t' ].execute() << sendmail_html
+            log.info "[CFIA-NCFAD/nf-ionampliseq] Sent summary e-mail to $email_address (sendmail)"
+        } catch (all) {
+            // Catch failures and try with plaintext
+            def mail_cmd = [ 'mail', '-s', subject, '--content-type=text/html', email_address ]
+            if ( mqc_report.size() <= params.max_multiqc_email_size.toBytes() ) {
+              mail_cmd += [ '-A', mqc_report ]
+            }
+            mail_cmd.execute() << email_html
+            log.info "[CFIA-NCFAD/nf-ionampliseq] Sent summary e-mail to $email_address (mail)"
+        }
+    }
+
+    // Write summary e-mail HTML to a file
+    def output_d = new File("${params.outdir}/pipeline_info/")
+    if (!output_d.exists()) {
+        output_d.mkdirs()
+    }
+    def output_hf = new File(output_d, "pipeline_report.html")
+    output_hf.withWriter { w -> w << email_html }
+    def output_tf = new File(output_d, "pipeline_report.txt")
+    output_tf.withWriter { w -> w << email_txt }
+
+    c_green = params.monochrome_logs ? '' : "\033[0;32m";
+    c_purple = params.monochrome_logs ? '' : "\033[0;35m";
+    c_red = params.monochrome_logs ? '' : "\033[0;31m";
+    c_reset = params.monochrome_logs ? '' : "\033[0m";
+
+    if (workflow.stats.ignoredCount > 0 && workflow.success) {
+        log.info "-${c_purple}Warning, pipeline completed, but with errored process(es) ${c_reset}-"
+        log.info "-${c_red}Number of ignored errored process(es) : ${workflow.stats.ignoredCount} ${c_reset}-"
+        log.info "-${c_green}Number of successfully ran process(es) : ${workflow.stats.succeedCount} ${c_reset}-"
+    }
+
+    if (workflow.success) {
+        log.info "-${c_purple}[CFIA-NCFAD/nf-ionampliseq]${c_green} Pipeline completed successfully${c_reset}-"
+    } else {
+        checkHostname()
+        log.info "-${c_purple}[CFIA-NCFAD/nf-ionampliseq]${c_red} Pipeline completed with errors${c_reset}-"
+    }
 }
