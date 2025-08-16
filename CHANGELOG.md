@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - [fix] divide by zero in awk code in `BCFTOOLS_FILTER` when FDP is 0.
+- [fix] the GT set after merging of split alleles so that it's the proper GT. `bcftools norm -m +any` may set an inappropriate GT for multiallelic sites where the ALT alleles are only considered even when the AF is less than major AF and the REF allele should also be represented in the consensus.
 
 ## [[2.1.0](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.1.0))] - 2025-08-15
 
