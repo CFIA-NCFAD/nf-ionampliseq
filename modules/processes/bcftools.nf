@@ -283,7 +283,7 @@ process BCFTOOLS_CONSENSUS {
 
   output:
   tuple val(sample), path('*.bcftools.consensus.fasta'), emit: fasta
-  path('*.merged.vcf.gz'), emit: merged_vcf
+  path('*.merged.vcf.gz'), emit: vcf
   path("versions.yml"), emit: versions
 
   script:
@@ -295,7 +295,19 @@ process BCFTOOLS_CONSENSUS {
   awk '/^>/ {print; next} {gsub(/[RYSWKMBDHVryswkmbdhv]/, "N"); print}' $fasta > ${fasta}.no_ambiguous.fasta
 
   # merge multiallelic sites into single record for bcftools consensus
-  bcftools norm -m +any ${vcf} -Oz -o ${vcf}.merged.vcf.gz
+  bcftools norm -m +any ${vcf} -Ou \\
+  | bcftools +setGT -Ov -o ${vcf}.merged.vcf \\
+    -- -t q -n 'c:0/1' -i 'INFO/FLOW_GT="0/1"'
+
+  # Also force other genotypes to be preserved
+  bcftools +setGT ${vcf}.merged.vcf -Ov -o ${vcf}.merged.vcf.tmp \\
+    -- -t q -n 'c:1/1' -i 'INFO/FLOW_GT="1/1"'
+
+  bcftools +setGT ${vcf}.merged.vcf.tmp -Ov -o ${vcf}.merged.vcf \\
+    -- -t q -n 'c:1/2' -i 'INFO/FLOW_GT="1/2"'
+
+  # Compress the final merged file
+  bgzip -c ${vcf}.merged.vcf > ${vcf}.merged.vcf.gz
   tabix ${vcf}.merged.vcf.gz
 
   bcftools consensus \\
