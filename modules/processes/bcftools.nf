@@ -104,71 +104,57 @@ process BCFTOOLS_FILTER {
       out_alts = ref;
       out_afs = ref_af + "";
     } else if(n_kept == 1) {
-        # Single alternate
-        single_af = (split(keep_afs, af_arr, ","), af_arr[1] + 0);
-        if(total_af >= maj) {
-            final_gt = "1/1";  # Homozygous alt (high total AF)
-            action = "SINGLE_HOM";
-        } else {
-            final_gt = "0/1";  # Heterozygous with reference
-            action = "SINGLE_HET";
-        }
-        out_alts = keep_alts;
-        out_afs = keep_afs;
+      # Single alternate
+      single_af = (split(keep_afs, af_arr, ","), af_arr[1] + 0);
+      if(total_af >= maj) {
+          final_gt = "1/1";  # Homozygous alt (high total AF)
+          action = "SINGLE_HOM";
+      } else {
+          final_gt = "0/1";  # Heterozygous with reference
+          action = "SINGLE_HET";
+      }
+      out_alts = keep_alts;
+      out_afs = keep_afs;
     } else if(n_kept == 2) {
-        # Two alternates
-        split(keep_afs, af_arr, ",");
-        af1 = af_arr[1] + 0;
-        af2 = af_arr[2] + 0;
-        
-        if(total_af >= maj) {
-            final_gt = "1/2";  # Both alternates, creates ambiguity
-            action = "DUAL_ALT_AMBIGUOUS";
-        } else {
-            # Pick the higher AF alternate with reference
-            if(af1 >= af2) {
-                final_gt = "0/1";
-                out_alts = (split(keep_alts, alt_arr, ","), alt_arr[1]);
-                out_afs = af1 + "";
-                action = "DUAL_TO_BEST";
-            } else {
-                final_gt = "0/1"; 
-                out_alts = (split(keep_alts, alt_arr, ","), alt_arr[2]);
-                out_afs = af2 + "";
-                action = "DUAL_TO_BEST";
-            }
-        }
-        
-        if(final_gt == "1/2") {
-            out_alts = keep_alts;
-            out_afs = keep_afs;
-        }
+      # Two alternates
+      split(keep_afs, af_arr, ",");
+      af1 = af_arr[1] + 0;
+      af2 = af_arr[2] + 0;
+      action = "DUAL_ALT_AMBIGUOUS";
+      if(total_af >= maj) {
+        final_gt = "1/2";  # Both alternates, creates ambiguity
+      } else {
+        # Both alternates meet minor threshold - keep both for ambiguity
+        final_gt = "0/1";  # Heterozygous with reference, but ambiguous between two alternates
+      }
+      out_alts = keep_alts;
+      out_afs = keep_afs;
     } else {
-        # More than 2 alternates - keep alleles with AF > $minor_allele_fraction
-        split(keep_alts, alt_arr, ",");
-        split(keep_afs, af_arr, ",");
-        
-        # Sort by AF descending (simple bubble sort)
-        for(i = 1; i <= n_kept; i++) {
-            for(j = i+1; j <= n_kept; j++) {
-                if((af_arr[j] + 0) > (af_arr[i] + 0)) {
-                    temp = af_arr[i]; af_arr[i] = af_arr[j]; af_arr[j] = temp;
-                    temp = alt_arr[i]; alt_arr[i] = alt_arr[j]; alt_arr[j] = temp;
-                }
-            }
+      # More than 2 alternates - keep alleles with AF > $minor_allele_fraction
+      split(keep_alts, alt_arr, ",");
+      split(keep_afs, af_arr, ",");
+      
+      # Sort by AF descending (simple bubble sort)
+      for(i = 1; i <= n_kept; i++) {
+        for(j = i+1; j <= n_kept; j++) {
+          if((af_arr[j] + 0) > (af_arr[i] + 0)) {
+            temp = af_arr[i]; af_arr[i] = af_arr[j]; af_arr[j] = temp;
+            temp = alt_arr[i]; alt_arr[i] = alt_arr[j]; alt_arr[j] = temp;
+          }
         }
-        
-        out_alts = alt_arr[1] "," alt_arr[2];
-        out_afs = af_arr[1] "," af_arr[2];
-        final_gt = "1/2";  # Creates ambiguity code
-        action = "MULTI_TO_DUAL";
+      }
+      
+      out_alts = alt_arr[1] "," alt_arr[2];
+      out_afs = af_arr[1] "," af_arr[2];
+      final_gt = "1/2";  # Creates ambiguity code
+      action = "MULTI_TO_DUAL";
     }
     
     printf "#   Decision: %s -> %s (action: %s)\\n", final_gt, out_alts, action > "/dev/stderr";
     
     # Output for further processing
     if(final_gt != "0/0" || total_af < min) {
-        print chrom, pos, ref, out_alts, out_afs, final_gt, fdp, action;
+      print chrom, pos, ref, out_alts, out_afs, final_gt, fdp, action;
     }
   }' > "${sample}.flow_eval_decisions.tsv"
 
