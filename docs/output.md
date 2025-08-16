@@ -161,7 +161,9 @@ A majority consensus sequence is constructed with [Bcftools][] `consensus` from 
 **Output files:**
 
 * `consensus/`
-  * `*.consensus.fasta`: Majority consensus sequence with low/no coverage positions masked with `N` (by default).
+  * `*.consensus.fasta`: Depth-masked consensus sequence. Low/no coverage positions masked with `N` (by default).
+  * `vcf/`
+    * `*.merged.vcf.gz`: Re-merged split variants used for consensus sequence construction.
 
 ## Edlib Pairwise Alignment
 
