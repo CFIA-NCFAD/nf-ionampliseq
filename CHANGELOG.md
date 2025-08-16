@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [[2.1.1](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.1.1))] - 2025-08-15
 
+### Changes
+
+- [feat] output the VCF with re-merged split variants used for consensus sequence construction.
+
 ### Fixed
 
 - [fix] divide by zero in awk code in `BCFTOOLS_FILTER` when FDP is 0.

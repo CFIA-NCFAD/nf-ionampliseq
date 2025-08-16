@@ -3,7 +3,7 @@ title: "CFIA-NCFAD/nf-ionampliseq"
 message: "Please consider citing CFIA-NCFAD/nf-ionampliseq if you use it in your research."
 type: software
 version: 2.1.1
-date-released: 2025-08-12
+date-released: 2025-08-15
 authors:
   - family-names: "Kruczkiewicz"
     given-names: "Peter"
