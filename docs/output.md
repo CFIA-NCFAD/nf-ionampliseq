@@ -21,7 +21,7 @@ and processes data using the following steps:
 * [Consensus Sequence](#consensus-sequence) - Majority consensus sequence with configurable coverage masking thresholds
 * [Edlib Pairwise Alignment](#edlib-pairwise-alignment) - Pairwise global alignment and edit distance between reference and consensus sequences
 * [BLAST Analysis](#blast-analysis) - BLAST database search against consensus sequences for taxonomic identification and sequence similarity analysis
-* [CSFV FASTA QC](#csfv-fasta-qc) - Quality control analysis specific to CSFV consensus sequences
+* [CSFV Consensus Sequence QC](#csfv-consensus-sequence-qc) - Quality control analysis specific to CSFV consensus sequences
 * [MultiQC](#multiqc) - Aggregate report describing results from the whole pipeline
 * [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
