@@ -3,6 +3,20 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [[2.2.0](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.2.0))] - 2025-08-18
+
+This release adds CSFV consensus sequence quality control with enhanced MultiQC reporting and fixes the `low_coverage` parameter default value mismatch.
+
+### Added
+
+- [feat] CSFV consensus sequence QC with `bin/qc_csfv_fasta.py` to determine quality of consensus sequence. Report is also added to MultiQC report.
+
+### Changes
+
+- [config] Adjusted MultiQC report general statistics table column visibility, name and order in `assets/multiqc_config.yaml`.
+- [config] `low_coverage` param in `./nextflow.config` set to `10` by default from `1` matching `./nextflow_schema.json`.
+- [docs] Updated `docs/output.md`
+
 ## [[2.1.1](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.1.1))] - 2025-08-15
 
 ### Changes

@@ -12,15 +12,16 @@ and processes data using the following steps:
 * [BAM Sample Info](#bam-sample-info) - Sample info extracted from BAM file headers
 * [FASTQ Reads](#fastq-reads) - BAM to FASTQ output
 * [FastQC](#fastqc) - Read quality control
-* [Mash](#mash) - Top reference genome determination by [Mash][] screen
-* [TMAP](#tmap) - Read mapping using the Thermo Fisher mapper [tmap]
+* [Mash](#mash) - Top reference genome determination by [Mash][] screen with configurable k-mer size and sketch count
+* [TMAP](#tmap) - Read mapping using the Thermo Fisher mapper [tmap] with optional unmapped reads output
 * [Samtools](#samtools) - Read mapping stats calculation with [Samtools][]
 * [Mosdepth](#mosdepth) - Coverage stats calculated by [Mosdepth][]
-* [TVC](#tvc) - Variant calling using the Thermo Fisher variant caller [tvc]
-* [Bcftools](#bcftools) - Variant filtering for majority consensus sequence generation and variant statistics for MultiQC report.
-* [Consensus Sequence](#consensus-sequence) - Majority consensus sequence with `N` masking of low/no coverage positions.
-* [Edlib Pairwise Alignment](#edlib-pairwise-alignment) - Pairwise global alignment and edit distance between reference and consensus sequences.
+* [TVC](#tvc) - Variant calling using the Thermo Fisher variant caller [tvc] with AmpliSeq primer trimming and configurable parameters
+* [Bcftools](#bcftools) - Variant filtering for majority consensus sequence generation and variant statistics for MultiQC report
+* [Consensus Sequence](#consensus-sequence) - Majority consensus sequence with configurable coverage masking thresholds
+* [Edlib Pairwise Alignment](#edlib-pairwise-alignment) - Pairwise global alignment and edit distance between reference and consensus sequences
 * [BLAST Analysis](#blast-analysis) - BLAST database search against consensus sequences for taxonomic identification and sequence similarity analysis
+* [CSFV FASTA QC](#csfv-fasta-qc) - Quality control analysis specific to CSFV consensus sequences
 * [MultiQC](#multiqc) - Aggregate report describing results from the whole pipeline
 * [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -164,6 +165,18 @@ A majority consensus sequence is constructed with [Bcftools][] `consensus` from 
   * `*.consensus.fasta`: Depth-masked consensus sequence. Low/no coverage positions masked with `N` (by default).
   * `vcf/`
     * `*.merged.vcf.gz`: Re-merged split variants used for consensus sequence construction.
+
+## CSFV Consensus Sequence QC
+
+The CSFV consensus sequence quality control process analyzes consensus FASTA files to determine the quality of consensus sequences. This step provides comprehensive quality metrics including N character distribution, GC content, reading frame analysis, and assembly quality assessment. Results are integrated into the MultiQC report for comprehensive quality reporting.
+
+**Output files:**
+
+* `qc_csfv_fasta/`
+  * `csfv_quality_summary.csv`: CSV file containing detailed quality metrics for each consensus sequence including coverage percentage, N character distribution, GC content, frameshift evidence, and polyprotein analysis.
+  * `csfv_quality_summary_mqc.txt`: MultiQC-compatible table format for integration into the final MultiQC report.
+
+> **NB:** CSFV QC results are automatically integrated into the MultiQC report, providing comprehensive quality assessment alongside other pipeline metrics.
 
 ## Edlib Pairwise Alignment
 
