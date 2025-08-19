@@ -121,6 +121,7 @@ include { BCFTOOLS_STATS } from './modules/processes/bcftools'
 include { EDLIB_ALIGN } from './modules/processes/edlib'
 include { BLASTN } from './modules/processes/blast'
 include { BLASTN_COVERAGE } from './modules/processes/blast'
+include { QC_CSFV_FASTA } from './modules/processes/qc_csfv_fasta'
 
 include { MULTIQC } from './modules/processes/multiqc'
 include { OUTPUT_DOCS } from './modules/processes/docs'
@@ -300,6 +301,10 @@ workflow {
   )
   ch_versions = ch_versions.mix(BCFTOOLS_CONSENSUS.out.versions.first().ifEmpty(null))
 
+  // CSFV FASTA Quality Control
+  QC_CSFV_FASTA(BCFTOOLS_CONSENSUS.out.fasta.map { it[1] }.collect())
+  ch_versions = ch_versions.mix(QC_CSFV_FASTA.out.versions.first().ifEmpty(null))
+
   // BLAST consensus sequences against database if specified
   if (params.blast_db) {
     ch_blast_db = Channel.from(file(params.blast_db, checkIfExists: false)).map { [it.name, it.parent] }
@@ -376,6 +381,7 @@ workflow {
     EDLIB_MULTIQC.out.collect().ifEmpty([]),
     CONSENSUS_MULTIQC.out.collect().ifEmpty([]),
     ch_blast_mqc_table.collect().ifEmpty([]),
+    QC_CSFV_FASTA.out.qc_results_mqc.collect().ifEmpty([]),  // Add CSFV QC results
     ch_mqc_versions_yml,
     ch_workflow_summary.collectFile(name: "workflow_summary_mqc.yaml")
   )
