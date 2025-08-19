@@ -54,12 +54,9 @@ mosdepth_config:
         - 5
         - 10
         - 30
-        - 50
         - 100
     general_stats_coverage_hidden:
         - 50
-        - 100
-
 
 run_modules:
     - custom_content
@@ -73,26 +70,52 @@ sp:
         fn: '*.global.dist.txt'
 
 table_columns_visible:
-    'VARIANTS: Samtools (tmap raw)':
-        flagstat_total: false
-        mapped_passed: false
-        error_rate: false
-        'non-primary_alignments': false
-    'PREPROCESS: FastQC (raw reads)':
-        total_sequences: false
-    'Bcftools Stats':
-        number_of_MNPs: true
+  "PREPROCESS: FastQC (raw reads)":
+    'Median len': false
+    'Avg len': true
+    'GC': false
+    percent_gc: false
+    'Dups': false
+    percent_duplicates: false
+    total_sequences: true
+  "VARIANTS: Samtools (tmap raw): stats":
+    'Mean insert': false
+    reads_mapped: true
+    reads_mapped_percent: false
+    non_primary_alignments: false
+    insert_size_average: false
+    error_rate: false
+    raw_total_sequences: false
+  "VARIANTS: Samtools (tmap raw): flagstat":
+    mapped_passed: false
+  "VARIANTS Mosdepth (tmap raw)":
+    median_coverage: true
+  "VARIANTS Bcftools (TVC): Stats":
+    number_of_records: true
+    number_of_SNPs: true
+    number_of_indels: true
+    tstv: true
+    MNP: true
+    'Multiallelic SNP': false
+    'Multiallelic': false
+
+table_columns_name:
+  "PREPROCESS: FastQC (raw reads)":
+    avg_sequence_length: 'Mean Read Length'
+    total_sequences: 'Total Reads'
+  "VARIANTS: Samtools (tmap raw)":
+    insert_size_average: 'Mean Insert Size'
+  "VARIANTS Mosdepth (tmap raw)":
+    median_coverage: 'Median Depth'
 
 table_columns_placement:
     'PREPROCESS: FastQC (raw reads)':
-        percent_duplicates: 850
-        percent_gc: 860
         avg_sequence_length: 870
     'VARIANTS: Samtools (tmap raw)':
         reads_mapped: 1010
         raw_total_sequences: 1020
         reads_mapped_percent: 1030
-    'Bcftools Stats':
+    'VARIANTS Bcftools (TVC): Stats':
         number_of_records: 1060
         number_of_SNPs: 1070
         number_of_MNPs: 1080

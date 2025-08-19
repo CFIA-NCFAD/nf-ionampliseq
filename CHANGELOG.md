@@ -3,6 +3,31 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [[2.2.0](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.2.0))] - 2025-08-18
+
+This release adds CSFV consensus sequence quality control with enhanced MultiQC reporting and fixes the `low_coverage` parameter default value mismatch.
+
+### Added
+
+- [feat] CSFV consensus sequence QC with `bin/qc_csfv_fasta.py` to determine quality of consensus sequence. Report is also added to MultiQC report.
+
+### Changes
+
+- [config] Adjusted MultiQC report general statistics table column visibility, name and order in `assets/multiqc_config.yaml`.
+- [config] `low_coverage` param in `./nextflow.config` set to `10` by default from `1` matching `./nextflow_schema.json`.
+- [docs] Updated `docs/output.md`
+
+## [[2.1.1](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.1.1))] - 2025-08-15
+
+### Changes
+
+- [feat] output the VCF with re-merged split variants used for consensus sequence construction.
+
+### Fixed
+
+- [fix] divide by zero in awk code in `BCFTOOLS_FILTER` when FDP is 0.
+- [fix] the GT set after merging of split alleles so that it's the proper GT. `bcftools norm -m +any` may set an inappropriate GT for multiallelic sites where the ALT alleles are only considered even when the AF is less than major AF and the REF allele should also be represented in the consensus.
+
 ## [[2.1.0](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.1.0))] - 2025-08-15
 
 ### Added

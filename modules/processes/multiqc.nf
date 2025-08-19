@@ -19,6 +19,7 @@ process MULTIQC {
   path('edlib/*')
   path('consensus/*')
   path('blast/*')
+  path('qc_csfv_fasta/*')
   path('software_versions/*')
   path(workflow_summary)
 
@@ -36,7 +37,7 @@ process MULTIQC {
   rfilename = custom_runName ? "--filename " + custom_runName.replaceAll('\\W','_').replaceAll('_+','_') + "_multiqc_report" : ''
   custom_config_file = params.multiqc_config ? "--config $mqc_custom_config" : ''
   """
-  multiqc -f $rtitle $rfilename $custom_config_file .
+  multiqc --verbose -f $rtitle $rfilename $custom_config_file .
   """
 }
 
