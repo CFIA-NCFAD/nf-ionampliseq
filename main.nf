@@ -302,7 +302,7 @@ workflow {
   ch_versions = ch_versions.mix(BCFTOOLS_CONSENSUS.out.versions.first().ifEmpty(null))
 
   // CSFV FASTA Quality Control
-  QC_CSFV_FASTA(BCFTOOLS_CONSENSUS.out.fasta.collect().map { it[1] })
+  QC_CSFV_FASTA(BCFTOOLS_CONSENSUS.out.fasta.map { it[1] }.collect())
   ch_versions = ch_versions.mix(QC_CSFV_FASTA.out.versions.first().ifEmpty(null))
 
   // BLAST consensus sequences against database if specified
