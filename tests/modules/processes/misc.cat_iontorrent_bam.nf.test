@@ -1,0 +1,67 @@
+nextflow_process {
+  name "Test CAT_IONTORRENT_BAM"
+  script "modules/processes/misc.nf"
+  process "CAT_IONTORRENT_BAM"
+  config "nextflow.config"
+
+  test("Should merge multiple BAM files into a single BAM file") {
+    when {
+      process {
+        """
+        input[0] = Channel.of(
+        [
+          'Sample1',
+          [
+            file("$projectDir/tests/data/bams/Sample1-1.bam"),
+            file("$projectDir/tests/data/bams/Sample1-2.bam"),
+            file("$projectDir/tests/data/bams/Sample1-3.bam")
+          ]
+        ],
+        [
+          'Sample2',
+          [ 
+            file("$projectDir/tests/data/bams/Sample2-1.bam"),
+            file("$projectDir/tests/data/bams/Sample2-2.bam")
+          ]
+        ],
+        [
+          'Sample3',
+          [
+            file("$projectDir/tests/data/bams/Sample3-1.bam")
+          ]
+        ]
+        )
+        """
+      }
+    }
+    then {
+      assert process.success
+      assert process.trace.tasks().size() == 3
+      
+      // Sample1 should have merged BAM with 5 reads (from 3 input BAMs)
+      def sample1_bam = path(process.out.bam.get(0)[1])
+      assert sample1_bam.exists()
+      
+      // Sample2 should have merged BAM with 3 reads (from 2 input BAMs)  
+      def sample2_bam = path(process.out.bam.get(1)[1])
+      assert sample2_bam.exists()
+      
+      // Sample3 should have symlinked BAM (single input BAM)
+      def sample3_bam = path(process.out.bam.get(2)[1])
+      assert sample3_bam.exists()
+      
+      // Test that merged BAM files are larger than the first input file
+      def sample1_input1 = path("$projectDir/tests/data/bams/Sample1-1.bam")
+      def sample2_input1 = path("$projectDir/tests/data/bams/Sample2-1.bam")
+      def sample3_input1 = path("$projectDir/tests/data/bams/Sample3-1.bam")
+      
+      assert sample1_bam.size() > sample1_input1.size() : "Sample1 merged BAM should be larger than first input BAM"
+      assert sample2_bam.size() > sample2_input1.size() : "Sample2 merged BAM should be larger than first input BAM"
+      
+      // Test that Sample3 output is identical to input (symlink case)
+      def sample3_input_md5 = sample3_input1.md5
+      def sample3_output_md5 = sample3_bam.md5
+      assert sample3_input_md5 == sample3_output_md5 : "Sample3 output BAM should be identical to input BAM (symlink)"
+    }
+  }
+}

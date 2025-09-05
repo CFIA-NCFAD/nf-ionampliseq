@@ -1,0 +1,48 @@
+nextflow_process {
+  name "Test CAT_IONTORRENT_FASTQ"
+  script "modules/processes/misc.nf"
+  process "CAT_IONTORRENT_FASTQ"
+  config "nextflow.config"
+
+  test("Should cat multiple reads files into a single reads file") {
+    when {
+      process {
+        """
+        input[0] = Channel.of(
+        [
+          'Sample1',
+          [
+            file("$projectDir/tests/data/fastq/Sample1-1.fastq.gz"),
+            file("$projectDir/tests/data/fastq/Sample1-2.fastq.gz"),
+            file("$projectDir/tests/data/fastq/Sample1-3.fastq.gz")
+          ]
+        ],
+        [
+          'Sample2',
+          [ 
+            file("$projectDir/tests/data/fastq/Sample2-1.fastq.gz"),
+            file("$projectDir/tests/data/fastq/Sample2-2.fastq.gz")
+          ]
+        ],
+        [
+          'Sample3',
+          [
+            file("$projectDir/tests/data/fastq/Sample3-1.fastq.gz")
+          ]
+        ]
+        )
+        """
+      }
+    }
+    then {
+      assert process.success
+      assert process.trace.tasks().size() == 3
+      // Sample1 output should have 5 reads, i.e. 20 lines
+      assert path(process.out.reads.get(0)[1]).getLinesGzip().size() == 20
+      // Sample2 output should have 3 reads, i.e. 12 lines
+      assert path(process.out.reads.get(1)[1]).getLinesGzip().size() == 12
+      // Sample3 output should have 2 reads, i.e. 8 lines
+      assert path(process.out.reads.get(2)[1]).getLinesGzip().size() == 8
+    }
+  }
+}

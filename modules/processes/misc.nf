@@ -83,3 +83,71 @@ process FILTER_BED_FILE {
   grep "^\$REF\\b" $bed_file >> ${sample}-filtered.bed
   """
 }
+
+process CAT_IONTORRENT_FASTQ {
+  tag "$sample"
+
+  input:
+  tuple val(sample), path(reads, stageAs: "input*/*")
+
+  output:
+  tuple val(sample), path("*.merged.fastq.gz"), emit: reads
+
+  when:
+  task.ext.when == null || task.ext.when
+
+  script:
+  def readList = reads instanceof List ? reads.collect{ it.toString() } : [reads.toString()]
+  if (readList.size == 1) {
+  """
+  ln -s $reads ${sample}.merged.fastq.gz
+  """
+  } else {
+  """
+  cat $reads > ${sample}.merged.fastq.gz
+  """
+  }
+}
+
+process CAT_IONTORRENT_BAM {
+  tag "$sample"
+
+  conda 'bioconda::samtools=1.22'
+  if (workflow.containerEngine == 'singularity' && !params.singularity_pull_docker_container) {
+    container 'https://depot.galaxyproject.org/singularity/samtools:1.22--h96c455f_0'
+  } else {
+    container 'quay.io/biocontainers/samtools:1.22--h96c455f_0'
+  }
+
+  input:
+  tuple val(sample), path(bams, stageAs: "input*/*")
+
+  output:
+  tuple val(sample), path("*.merged.bam"), emit: bam
+  path("versions.yml"), emit: versions
+
+  when:
+  task.ext.when == null || task.ext.when
+
+  script:
+  def bamList = bams instanceof List ? bams.collect{ it.toString() } : [bams.toString()]
+  if (bamList.size == 1) {
+  """
+  ln -s $bams ${sample}.merged.bam
+
+  cat <<-END_VERSIONS > versions.yml
+  "${task.process}":
+      samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+  END_VERSIONS
+  """
+  } else {
+  """
+  samtools merge ${sample}.merged.bam $bams
+
+  cat <<-END_VERSIONS > versions.yml
+  "${task.process}":
+      samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+  END_VERSIONS
+  """
+  }
+}
