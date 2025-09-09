@@ -144,7 +144,9 @@ process CAT_IONTORRENT_BAM {
   """
   # Multiple BAMs: normalize SM first
   for bam in ${bamList.join(' ')}; do
-    samtools view -H \$bam | sed 's/SM:[^\\t]*/SM:${sample}/' > \${bam}.header.sam
+    samtools view -H \$bam \\
+      | sed 's/SM:[^\\t\\r\\n]*/SM:${sample}/g' \\
+      > \${bam}.header.sam
     samtools reheader \${bam}.header.sam \$bam > \${bam}.fixed.bam
     samtools index \${bam}.fixed.bam
   done
