@@ -173,7 +173,7 @@ workflow {
     // If sample sheet table provided
     ch_samplesheet = Channel.from(file(params.sample_sheet, checkIfExists: true))
 
-    CHECK_SAMPLE_SHEET(ch_input)
+    CHECK_SAMPLE_SHEET(ch_samplesheet)
     ch_versions = ch_versions.mix(CHECK_SAMPLE_SHEET.out.versions.first().ifEmpty(null))
 
     ch_input = CHECK_SAMPLE_SHEET.out.samplesheet
