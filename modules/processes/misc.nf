@@ -142,11 +142,20 @@ process CAT_IONTORRENT_BAM {
   """
   } else {
   """
-  samtools merge ${sample}.merged.bam $bams
+  # Multiple BAMs: normalize SM first
+  for bam in ${bamList.join(' ')}; do
+    samtools view -H \$bam | sed 's/SM:[^\\t]*/SM:${sample}/' > \${bam}.header.sam
+    samtools reheader \${bam}.header.sam \$bam > \${bam}.fixed.bam
+    samtools index \${bam}.fixed.bam
+  done
+
+  # Merge normalized BAMs
+  samtools merge -r ${sample}.merged.bam ${bamList.collect{ it + ".fixed.bam" }.join(' ') }
+  samtools index ${sample}.merged.bam
 
   cat <<-END_VERSIONS > versions.yml
   "${task.process}":
-      samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+      samtools: \$(samtools --version 2>&1 | sed 's/^.*samtools //; s/Using.*\$//')
   END_VERSIONS
   """
   }
