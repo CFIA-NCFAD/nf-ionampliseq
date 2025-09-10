@@ -148,11 +148,11 @@ process CAT_IONTORRENT_BAM {
   done
 
   {
-    grep '^@HD' *.header | head -n1
-    grep '^@SQ' *.header | awk '!seen[\$0]++'
-    grep '^@RG' *.header | sed 's/SM:[^\\t\\r\\n]*/SM:${sample}/g' | awk '!seen[\$0]++'
-    grep '^@PG' *.header | awk '!seen[\$0]++'
-    grep '^@CO' *.header | awk '!seen[\$0]++'
+    grep '^@HD' input*/*.header | head -n1
+    grep '^@SQ' input*/*.header | awk '!seen[\$0]++'
+    grep '^@RG' input*/*.header | sed 's/SM:[^\\t\\r\\n]*/SM:${sample}/g' | awk '!seen[\$0]++'
+    grep '^@PG' input*/*.header | awk '!seen[\$0]++'
+    grep '^@CO' input*/*.header | awk '!seen[\$0]++'
   } > merged_header.sam
 
   samtools merge -h header.sam -o ${sample}.merged.bam ${bamList.join(' ') }
