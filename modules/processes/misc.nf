@@ -142,12 +142,18 @@ process CAT_IONTORRENT_BAM {
   """
   } else {
   """
-  touch header.sam
+  # extract headers for all input BAMs
   for bam in ${bamList.join(' ')}; do
-    samtools view -H \$bam \\
-      | sed 's/SM:[^\\t\\r\\n]*/SM:${sample}/g' \\
-      >> header.sam
+    samtools view -H \$bam > \${bam}.header
   done
+
+  {
+    grep '^@HD' *.header | head -n1
+    grep '^@SQ' *.header | awk '!seen[\$0]++'
+    grep '^@RG' *.header | sed 's/SM:[^\\t\\r\\n]*/SM:${sample}/g' | awk '!seen[\$0]++'
+    grep '^@PG' *.header | awk '!seen[\$0]++'
+    grep '^@CO' *.header | awk '!seen[\$0]++'
+  } > merged_header.sam
 
   samtools merge -h header.sam -o ${sample}.merged.bam ${bamList.join(' ') }
   samtools index ${sample}.merged.bam
