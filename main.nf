@@ -67,10 +67,17 @@ summary['TVC downsample to X coverage']     = params.tvc_downsample_to_coverage
 summary['TVC min mapping Q value']          = params.tvc_min_mapping_qv
 summary['TVC read SNP limit']               = params.tvc_read_snp_limit
 summary['TVC read limit']                   = params.tvc_read_limit
+summary['TVC trim primers']                 = params.trim_primers
 summary['Consensus low coverage']           = params.low_coverage
 summary['Consensus low coverage character'] = params.low_cov_char
 summary['Consensus no coverage']            = params.no_coverage
 summary['Consensus no coverage character']  = params.no_cov_char
+summary['Major allele fraction']            = params.major_allele_fraction
+summary['Minor allele fraction']            = params.minor_allele_fraction
+summary['Filter frameshift variants']       = params.filter_frameshift_variants
+if (params.blast_db) {
+  summary['BLAST database']                   = params.blast_db
+}
 summary['Max Resources']                    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if (workflow.containerEngine) {
     summary['Container'] = "$workflow.containerEngine - $workflow.container"
@@ -113,6 +120,8 @@ include { TMAP } from './modules/processes/tmap'
 include { SAMTOOLS_DEPTH } from './modules/processes/samtools'
 include { SAMTOOLS_FASTQ } from './modules/processes/samtools'
 include { SAMTOOLS_STATS } from './modules/processes/samtools'
+include { CAT_IONTORRENT_FASTQ } from './modules/processes/misc'
+include { CAT_IONTORRENT_BAM } from './modules/processes/misc'
 include { MOSDEPTH_GENOME } from './modules/processes/mosdepth'
 include { TVC } from './modules/processes/tvc'
 include { BCFTOOLS_CONSENSUS } from './modules/processes/bcftools'
@@ -164,7 +173,7 @@ workflow {
     // If sample sheet table provided
     ch_samplesheet = Channel.from(file(params.sample_sheet, checkIfExists: true))
 
-    CHECK_SAMPLE_SHEET(ch_input)
+    CHECK_SAMPLE_SHEET(ch_samplesheet)
     ch_versions = ch_versions.mix(CHECK_SAMPLE_SHEET.out.versions.first().ifEmpty(null))
 
     ch_input = CHECK_SAMPLE_SHEET.out.samplesheet
@@ -242,20 +251,25 @@ workflow {
   SAMTOOLS_FASTQ(ch_input)
   ch_versions = ch_versions.mix(SAMTOOLS_FASTQ.out.versions.first().ifEmpty(null))
 
+  CAT_IONTORRENT_FASTQ(SAMTOOLS_FASTQ.out.fastq_gz.groupTuple())
+
   MASH_SKETCH(ch_ref_fasta.map { it[1] }.unique())
   ch_versions = ch_versions.mix(MASH_SKETCH.out.versions.first().ifEmpty(null))
 
   ch_ref_fasta_to_mash_sketch = ch_ref_fasta.combine(MASH_SKETCH.out.sketch)
     .map { [it[0], it[1], it[3]] }
 
-  MASH_SCREEN(SAMTOOLS_FASTQ.out.fastq_gz.join(ch_ref_fasta_to_mash_sketch))
+  MASH_SCREEN(CAT_IONTORRENT_FASTQ.out.reads.join(ch_ref_fasta_to_mash_sketch))
   ch_versions = ch_versions.mix(MASH_SCREEN.out.versions.first().ifEmpty(null))
 
   SEQTK_SUBSEQ(ch_ref_fasta.join(MASH_SCREEN.out.top_ref_txt))
   ch_versions = ch_versions.mix(SEQTK_SUBSEQ.out.versions.first().ifEmpty(null))
 
   // Map reads against top reference and compute read mapping stats
-  ch_input_top_ref = ch_input.join(SEQTK_SUBSEQ.out.top_ref_fasta)
+  CAT_IONTORRENT_BAM(ch_input.groupTuple())
+  ch_versions = ch_versions.mix(CAT_IONTORRENT_BAM.out.versions.first().ifEmpty(null))
+
+  ch_input_top_ref = CAT_IONTORRENT_BAM.out.bam.join(SEQTK_SUBSEQ.out.top_ref_fasta)
 
   TMAP(ch_input_top_ref)
   ch_versions = ch_versions.mix(TMAP.out.versions.first().ifEmpty(null))
@@ -272,7 +286,7 @@ workflow {
   // Collect Mash screen results into table for MultiQC report
 
   // FastQC reads
-  FASTQC(SAMTOOLS_FASTQ.out.fastq_gz)
+  FASTQC(CAT_IONTORRENT_FASTQ.out.reads)
   // Variant calling with TVC
   ch_tvc_input = TMAP.out.bam.join(FILTER_BED_FILE.out)
   TVC(

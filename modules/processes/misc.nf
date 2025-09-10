@@ -83,3 +83,104 @@ process FILTER_BED_FILE {
   grep "^\$REF\\b" $bed_file >> ${sample}-filtered.bed
   """
 }
+
+process CAT_IONTORRENT_FASTQ {
+  tag "$sample"
+
+  input:
+  tuple val(sample), path(reads, stageAs: "input*/*")
+
+  output:
+  tuple val(sample), path("*.merged.fastq.gz"), emit: reads
+
+  when:
+  task.ext.when == null || task.ext.when
+
+  script:
+  def readList = reads instanceof List ? reads.collect{ it.toString() } : [reads.toString()]
+  if (readList.size == 1) {
+  """
+  ln -s $reads ${sample}.merged.fastq.gz
+  """
+  } else {
+  """
+  cat $reads > ${sample}.merged.fastq.gz
+  """
+  }
+}
+
+process CAT_IONTORRENT_BAM {
+  tag "$sample"
+
+  conda 'bioconda::samtools=1.22'
+  if (workflow.containerEngine == 'singularity' && !params.singularity_pull_docker_container) {
+    container 'https://depot.galaxyproject.org/singularity/samtools:1.22--h96c455f_0'
+  } else {
+    container 'quay.io/biocontainers/samtools:1.22--h96c455f_0'
+  }
+
+  input:
+  tuple val(sample), path(bams, stageAs: "input*/*")
+
+  output:
+  tuple val(sample), path("*.merged.bam"), emit: bam
+  path("versions.yml"), emit: versions
+
+  when:
+  task.ext.when == null || task.ext.when
+
+  script:
+  def bamList = bams instanceof List ? bams.collect{ it.toString() } : [bams.toString()]
+  if (bamList.size == 1) {
+  """
+  ln -s $bams ${sample}.merged.bam
+
+  cat <<-END_VERSIONS > versions.yml
+  "${task.process}":
+      samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+  END_VERSIONS
+  """
+  } else {
+  """
+  touch all_headers.tmp
+  for bam in $bams; do
+    samtools view -H \$bam >> all_headers.tmp
+  done
+
+  # Build merged header with proper ordering
+  {
+    # keep the first @HD only
+    grep -h '^@HD' all_headers.tmp | head -n1
+
+    # deduplicate @SQ lines
+    grep -h '^@SQ' all_headers.tmp | awk '!seen[\$0]++'
+
+    # deduplicate and fix SM in @RG
+    grep -h '^@RG' all_headers.tmp \
+      | sed 's/SM:[^\\t\\r\\n]*/SM:${sample}/g' \
+      | awk '!seen[\$0]++'
+
+    # deduplicate @PG
+    grep -h '^@PG' all_headers.tmp | awk '!seen[\$0]++'
+
+    # deduplicate @CO
+    grep -h '^@CO' all_headers.tmp | awk '!seen[\$0]++'
+  } > merged_header.sam
+
+  # sanity check: header must contain @HD and @SQ
+  if ! grep -q '^@HD' merged_header.sam || ! grep -q '^@SQ' merged_header.sam; then
+    echo "ERROR: merged_header.sam is missing @HD or @SQ" >&2
+    exit 1
+  fi
+
+  samtools merge -o ${sample}.tmp.bam $bams
+  samtools reheader merged_header.sam ${sample}.tmp.bam > ${sample}.merged.bam
+  samtools index ${sample}.merged.bam
+
+  cat <<-END_VERSIONS > versions.yml
+  "${task.process}":
+      samtools: \$(echo \$(samtools --version 2>&1) | sed 's/^.*samtools //; s/Using.*\$//')
+  END_VERSIONS
+  """
+  }
+}

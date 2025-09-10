@@ -99,7 +99,9 @@ Please note the following requirements:
 
 Sample sheet table containing two fields: sample name, BAM file path.
 
-Use this option to specify the Ion Torrent sequencing samples that you wish to analyze. Please note the following requirements:
+Use this option to specify the Ion Torrent sequencing samples that you wish to analyze and if you wish to rename samples rather than rely on the names within the BAM files. Using a samplesheet is necessary if you wish to merge the reads of the same sample with different BAM sample names.
+
+Please note the following requirements:
 
 1. The sample sheet table file may be one of the following formats: tab-delimited (TSV), CSV, ODS or XLSX
 2. The sample sheet table must contain a header row and 2 fields: the first field must contain the sample name; and the second field must contain the BAM file path or URL
