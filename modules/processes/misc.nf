@@ -149,7 +149,7 @@ process CAT_IONTORRENT_BAM {
       >> header.sam
   done
 
-  samtools merge -H header.sam -r ${bamList.collect{ it + ".fixed.bam" }.join(' ') }
+  samtools merge -h header.sam -r ${bamList.collect{ it + ".fixed.bam" }.join(' ') }
   samtools index ${sample}.merged.bam
 
   cat <<-END_VERSIONS > versions.yml
