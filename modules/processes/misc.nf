@@ -173,7 +173,8 @@ process CAT_IONTORRENT_BAM {
     exit 1
   fi
 
-  samtools merge -h merged_header.sam -o ${sample}.merged.bam $bams
+  samtools merge -o ${sample}.tmp.bam $bams
+  samtools reheader merged_header.sam ${sample}.tmp.bam > ${sample}.merged.bam
   samtools index ${sample}.merged.bam
 
   cat <<-END_VERSIONS > versions.yml
