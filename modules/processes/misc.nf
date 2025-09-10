@@ -142,20 +142,36 @@ process CAT_IONTORRENT_BAM {
   """
   } else {
   """
-  # extract headers for all input BAMs
-  for bam in ${bamList.join(' ')}; do
-    samtools view -H \$bam > \${bam}.header
-  done
+  # Extract headers into a single temp file
+  samtools view -H $bams > all_headers.tmp
 
+  # Build merged header with proper ordering
   {
-    grep '^@HD' input*/*.header | head -n1
-    grep '^@SQ' input*/*.header | awk '!seen[\$0]++'
-    grep '^@RG' input*/*.header | sed 's/SM:[^\\t\\r\\n]*/SM:${sample}/g' | awk '!seen[\$0]++'
-    grep '^@PG' input*/*.header | awk '!seen[\$0]++'
-    grep '^@CO' input*/*.header | awk '!seen[\$0]++'
+    # keep the first @HD only
+    grep -h '^@HD' all_headers.tmp | head -n1
+
+    # deduplicate @SQ lines
+    grep -h '^@SQ' all_headers.tmp | awk '!seen[\$0]++'
+
+    # deduplicate and fix SM in @RG
+    grep -h '^@RG' all_headers.tmp \
+      | sed 's/SM:[^\t\r\n]*/SM:'"${sample}"'/g' \
+      | awk '!seen[\$0]++'
+
+    # deduplicate @PG
+    grep -h '^@PG' all_headers.tmp | awk '!seen[\$0]++'
+
+    # deduplicate @CO
+    grep -h '^@CO' all_headers.tmp | awk '!seen[\$0]++'
   } > merged_header.sam
 
-  samtools merge -h merged_header.sam -o ${sample}.merged.bam ${bamList.join(' ') }
+  # sanity check: header must contain @HD and @SQ
+  if ! grep -q '^@HD' merged_header.sam || ! grep -q '^@SQ' merged_header.sam; then
+    echo "ERROR: merged_header.sam is missing @HD or @SQ" >&2
+    exit 1
+  fi
+
+  samtools merge -h merged_header.sam -o ${sample}.merged.bam $bams
   samtools index ${sample}.merged.bam
 
   cat <<-END_VERSIONS > versions.yml
