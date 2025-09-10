@@ -155,7 +155,7 @@ process CAT_IONTORRENT_BAM {
     grep '^@CO' input*/*.header | awk '!seen[\$0]++'
   } > merged_header.sam
 
-  samtools merge -h header.sam -o ${sample}.merged.bam ${bamList.join(' ') }
+  samtools merge -h merged_header.sam -o ${sample}.merged.bam ${bamList.join(' ') }
   samtools index ${sample}.merged.bam
 
   cat <<-END_VERSIONS > versions.yml
