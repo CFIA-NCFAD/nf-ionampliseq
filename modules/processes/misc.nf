@@ -155,7 +155,7 @@ process CAT_IONTORRENT_BAM {
 
     # deduplicate and fix SM in @RG
     grep -h '^@RG' all_headers.tmp \
-      | sed 's/SM:[^\t\r\n]*/SM:'"${sample}"'/g' \
+      | sed 's/SM:[^\\t\\r\\n]*/SM:'"${sample}"'/g' \
       | awk '!seen[\$0]++'
 
     # deduplicate @PG
