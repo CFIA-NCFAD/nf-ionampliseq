@@ -9,8 +9,12 @@ This release adds merging of BAM/FASTQ files for the same samples prior to analy
 
 ### Added
 
-- [feat] Merging of reads across multiple runs for the same sample with `CAT_IONTORRENT_BAM` and `CAT_IONTORRENT_FASTQ`. If multiple reads sets are present for a sample, BAM files are merged with `samtools merge` and FASTQ files are merged `cat`, otherwise, symlinks are made.
+- [feat] Merging of reads across multiple runs for the same sample with `CAT_IONTORRENT_BAM` and `CAT_IONTORRENT_FASTQ`. If multiple reads sets are present for a sample, BAM files are merged with `samtools merge` and FASTQ files are merged `cat`, otherwise, symlinks are made. Additional steps are taken to preserve original read group (`@RG`) information for all input BAM files as well as rename sample name if required, so that merged BAM files are compatible with TVC variant calling. Sample renaming may occur when running the pipeline with a samplesheet rather than relying on the sample names within the BAM files themselves.
 - [test] nf-test for `CAT_IONTORRENT_BAM` and `CAT_IONTORRENT_FASTQ` along with minimal test data and scripts used to generate test data.
+
+### Fixed
+
+- [fix] samplesheet handling
 
 ## [[2.2.0](https://github.com/CFIA-NCFAD/nf-ionampliseq/releases/tag/2.2.0))] - 2025-08-18
 

@@ -10,7 +10,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/)
 and processes data using the following steps:
 
 * [BAM Sample Info](#bam-sample-info) - Sample info extracted from BAM file headers
-* [FASTQ Reads](#fastq-reads) - BAM to FASTQ output
+* [Merged Reads](#merged-reads) - Merged BAM and FASTQ output
 * [FastQC](#fastqc) - Read quality control
 * [Mash](#mash) - Top reference genome determination by [Mash][] screen with configurable k-mer size and sketch count
 * [TMAP](#tmap) - Read mapping using the Thermo Fisher mapper [tmap] with optional unmapped reads output
@@ -34,15 +34,19 @@ Sample and sequencing run information is extracted from the BAM file headers and
 * `bam_sample_info/`
   * `*.tsv`: Sample info table containing fields such as platform, platform unit, run date, AmpliSeq panel, original reference FASTA, sample name, etc.
 
-## FASTQ Reads
+## Merged Reads
 
-FASTQ format read sequences are extracted from input BAM files.
+All BAM files associated with a sample are merged together. Original read group information is preserved except for the sample name, which will be replaced with the specified sample name if necessary. These BAM files are used as input for TVC variant calling and should be compatible with Flow Order (`FO`) information preserved for Flow Evaluator quantification of allele observations.
+
+FASTQ format read sequences are extracted from input BAM files and all sets of reads for a sample are concatenated together.
 
 **Output files:**
 
 * `reads/`
-  * `fastq/`
-    * `*.fastq.gz`: Gzip compressed FASTQ format read sequences extracted from input BAM files for each sample. *Useful for troubleshooting and ad hoc analysis.*
+  * `merged_bam`
+    * `*.bam`: All BAM files associated with a sample are merged together. Original read group information is preserved except for the sample name, which will be replaced with the specified sample name if necessary. These BAM files are used as input for TVC variant calling and should be compatible with Flow Order (`FO`) information preserved for Flow Evaluator quantification of allele observations.
+  * `merged_fastq/`
+    * `*.fastq.gz`: Concatenated reads for the same sample. Reads are gzip compressed FASTQ format read sequences extracted from input BAM files for each sample.
 
 ## FastQC
 
