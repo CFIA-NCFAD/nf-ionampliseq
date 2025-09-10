@@ -142,8 +142,10 @@ process CAT_IONTORRENT_BAM {
   """
   } else {
   """
-  # Extract headers into a single temp file
-  samtools view -H $bams > all_headers.tmp
+  touch all_headers.tmp
+  for bam in $bams; do
+    samtools view -H \$bam >> all_headers.tmp
+  done
 
   # Build merged header with proper ordering
   {
